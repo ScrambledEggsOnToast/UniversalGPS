@@ -12,6 +12,7 @@ public:
 	UGVec2() :x(0), y(0) {}
 	UGVec2(T x, T y) : x(x), y(y) {}
 	UGVec2(const UGVec2& v) : x(v.x), y(v.y) {}
+    UGVec2(T theta) : x(cos(theta)), y(sin(theta)) {}
 	
 	UGVec2& operator=(const UGVec2& v) {
 		x = v.x;
@@ -19,54 +20,54 @@ public:
 		return *this;
 	}
 	
-	UGVec2 operator+(UGVec2& v) {
+	UGVec2 operator+(const UGVec2& v) const {
 		return UGVec2(x + v.x, y + v.y);
 	}
-	UGVec2 operator-(UGVec2& v) {
+	UGVec2 operator-(const UGVec2& v) const {
 		return UGVec2(x - v.x, y - v.y);
 	}
 	
-	UGVec2& operator+=(UGVec2& v) {
+	UGVec2& operator+=(const UGVec2& v) {
 		x += v.x;
 		y += v.y;
 		return *this;
 	}
-	UGVec2& operator-=(UGVec2& v) {
+	UGVec2& operator-=(const UGVec2& v) {
 		x -= v.x;
 		y -= v.y;
 		return *this;
 	}
 	
-	UGVec2 operator+(double s) {
+	UGVec2 operator+(T s) const {
 		return UGVec2(x + s, y + s);
 	}
-	UGVec2 operator-(double s) {
+	UGVec2 operator-(T s) const {
 		return UGVec2(x - s, y - s);
 	}
-	UGVec2 operator*(double s) {
+	UGVec2 operator*(T s) const {
 		return UGVec2(x * s, y * s);
 	}
-	UGVec2 operator/(double s) {
+	UGVec2 operator/(T s) const {
 		return UGVec2(x / s, y / s);
 	}
 	
 	
-	UGVec2& operator+=(double s) {
+	UGVec2& operator+=(T s) {
 		x += s;
 		y += s;
 		return *this;
 	}
-	UGVec2& operator-=(double s) {
+	UGVec2& operator-=(T s) {
 		x -= s;
 		y -= s;
 		return *this;
 	}
-	UGVec2& operator*=(double s) {
+	UGVec2& operator*=(T s) {
 		x *= s;
 		y *= s;
 		return *this;
 	}
-	UGVec2& operator/=(double s) {
+	UGVec2& operator/=(T s) {
 		x /= s;
 		y /= s;
 		return *this;
@@ -77,14 +78,12 @@ public:
 		this->y = y;
 	}
 	
-	void rotate(double deg) {
-		double theta = deg / 180.0 * M_PI;
-		double c = cos(theta);
-		double s = sin(theta);
-		double tx = x * c - y * s;
-		double ty = x * s + y * c;
-		x = tx;
-		y = ty;
+	UGVec2 rotate(T theta) const {
+		T c = cos(theta);
+		T s = sin(theta);
+		T tx = x * c - y * s;
+		T ty = x * s + y * c;
+		return UGVec2(tx,ty);
 	}
 	
 	UGVec2& normalize() {
@@ -93,30 +92,34 @@ public:
 		return *this;
 	}
 	
-	float dist(UGVec2 v) const {
+	T dist(UGVec2 v) const {
 		UGVec2 d(v.x - x, v.y - y);
 		return d.length();
 	}
-	float length() const {
+	T length() const {
 		return std::sqrt(length2());
 	}
-    float length2() const {
+    T length2() const {
 		return x * x + y * y;
 	}
-	void truncate(double length) {
-		double angle = atan2f(y, x);
+	void truncate(T length) {
+		T angle = atan2f(y, x);
 		x = length * cos(angle);
 		y = length * sin(angle);
 	}
+
+    T angle() {
+        return atan2f(y,x);
+    }
 	
 	UGVec2 ortho() const {
 		return UGVec2(y, -x);
 	}
 	
-	static float dot(UGVec2 v1, UGVec2 v2) {
+	static T dot(UGVec2 v1, UGVec2 v2) {
 		return v1.x * v2.x + v1.y * v2.y;
 	}
-	static float cross(UGVec2 v1, UGVec2 v2) {
+	static T cross(UGVec2 v1, UGVec2 v2) {
 		return (v1.x * v2.y) - (v1.y * v2.x);
 	}
 	

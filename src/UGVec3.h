@@ -20,59 +20,59 @@ public:
 		return *this;
 	}
 	
-	UGVec3 operator+(UGVec3& v) {
+	UGVec3 operator+(const UGVec3& v) const {
 		return UGVec3(x + v.x, y + v.y, z + v.z);
 	}
-	UGVec3 operator-(UGVec3& v) {
+	UGVec3 operator-(const UGVec3& v) const {
 		return UGVec3(x - v.x, y - v.y, z - v.z);
 	}
 	
-	UGVec3& operator+=(UGVec3& v) {
+	UGVec3& operator+=(const UGVec3& v) {
 		x += v.x;
 		y += v.y;
         z += v.z;
 		return *this;
 	}
-	UGVec3& operator-=(UGVec3& v) {
+	UGVec3& operator-=(const UGVec3& v) {
 		x -= v.x;
 		y -= v.y;
         z -= v.z;
 		return *this;
 	}
 	
-	UGVec3 operator+(double s) {
+	UGVec3 operator+(T s) const {
 		return UGVec3(x + s, y + s, z + s);
 	}
-	UGVec3 operator-(double s) {
+	UGVec3 operator-(T s) const {
 		return UGVec3(x - s, y - s, z - s);
 	}
-	UGVec3 operator*(double s) {
+	UGVec3 operator*(T s) const {
 		return UGVec3(x * s, y * s, z * s);
 	}
-	UGVec3 operator/(double s) {
+	UGVec3 operator/(T s) const {
 		return UGVec3(x / s, y / s, z / s);
 	}
 	
 	
-	UGVec3& operator+=(double s) {
+	UGVec3& operator+=(T s) {
 		x += s;
 		y += s;
         z += s;
 		return *this;
 	}
-	UGVec3& operator-=(double s) {
+	UGVec3& operator-=(T s) {
 		x -= s;
 		y -= s;
         z -= s;
 		return *this;
 	}
-	UGVec3& operator*=(double s) {
+	UGVec3& operator*=(T s) {
 		x *= s;
 		y *= s;
         z *= s;
 		return *this;
 	}
-	UGVec3& operator/=(double s) {
+	UGVec3& operator/=(T s) {
 		x /= s;
 		y /= s;
         z /= s;
@@ -91,18 +91,18 @@ public:
 		return *this;
 	}
 	
-	float dist(UGVec3 v) const {
+	T dist(UGVec3 v) const {
 		UGVec3 d(v.x - x, v.y - y, v.z - z);
 		return d.length();
 	}
-	float length() const {
+	T length() const {
 		return std::sqrt(length2());
 	}
-    float length2() const {
+    T length2() const {
 		return x * x + y * y + z * z;
 	}
 	
-	static float dot(UGVec3 v1, UGVec3 v2) {
+	static T dot(UGVec3 v1, UGVec3 v2) {
 		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
 	

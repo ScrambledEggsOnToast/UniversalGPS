@@ -41,29 +41,29 @@ public:
             2
             > kdtree;
 
-    void calculateQuads(UGQuadSet<T> &quadset, T theta = 0, T phi = 0)
+    const void calculateQuads(UGQuadSet<T> &quadset, const T theta = 0, const T phi = 0)
     {
 
         kdtree index(2,*this,KDTreeSingleIndexAdaptorParams(10));
         index.buildIndex();
 
-        T queryPoint[2];
-
-        std::vector<size_t> ret_indexes(4);
-        std::vector<T> out_dists_sqr(4);
-
-        nanoflann::KNNResultSet<T> resultSet(4);
-        resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
-            
 #pragma omp parallel for
         for(auto star = stars.begin(); star < stars.end(); star++) {
+            std::vector<size_t> ret_indexes(4);
+            std::vector<T> out_dists_sqr(4);
+
+            nanoflann::KNNResultSet<T> resultSet(4);
+            resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
+            
+            T queryPoint[2];
+
             queryPoint[0] = star->x;
             queryPoint[1] = star->y;
 
             index.findNeighbors(
                     resultSet,
                     &queryPoint[0],
-                    nanoflann::SearchParams(10));
+                    nanoflann::SearchParams());
             
             UGVec2<T> a = stars[ret_indexes[0]];
             UGVec2<T> b = stars[ret_indexes[1]];

@@ -7,8 +7,66 @@
 #include <cmath>
 
 #include "UGVec2.h"
+#include "UGVec3.h"
 
 using namespace nanoflann;
+
+template <class T>
+class UGDirection
+{
+public:
+    T theta, phi;
+
+    UGDirection(): theta(0), phi(0) {};
+    UGDirection(T theta, T phi): theta(theta), phi(phi) {};
+    UGDirection(const UGVec3<T>& v): theta(acos(v.z/v.length())), phi(atan2(v.y,v.x)) {};
+
+    static std::vector<UGDirection<T> > fibonacci(size_t n)
+    {
+        std::vector<UGDirection<T> > dirs;
+        dirs.resize(n);
+        T offset = 2/(T)n;
+        T increment = M_PI * (3 - sqrt(5));
+
+        T th, ph;
+        
+        for(size_t i = 0; i < n; i++)
+        {
+            th = acos(((T)i * offset) - 1 + (offset / 2));
+            ph = (T)i * increment;
+            
+            dirs[i] = UGDirection(th,ph);
+        }
+        return dirs;
+    }
+
+    UGVec3<T> unit(){
+        T ct,cp,st,sp;
+        ct = cos(theta);
+        cp = cos(phi);
+        st = sin(theta);
+        sp = sin(phi);
+        return UGVec3<T>(
+                cp*st,
+                sp*st,
+                ct
+                );
+    }
+
+};
+
+template <class T>
+class UGResult
+{
+public:
+    UGVec3<T> loc;
+    UGDirection<T> dir;
+    T roll, err;
+
+    UGResult(): loc(UGVec3<T>()), dir(UGDirection<T>()), roll(0), err(0) {};
+    UGResult(UGVec3<T> loc, UGDirection<T> dir, T roll, T err):
+        loc(loc), dir(dir), roll(roll), err(err) {};
+};
 
 template <class T>
 class UGQuad {
@@ -89,6 +147,36 @@ public:
         this->a = a;
         this->b = b;
 	}
+
+    static const UGResult<T> quadResult(const UGQuad<T>& qI, const UGQuad<T>& qP)
+    {
+        T dI, dP, aI, aP, scale, rot, ct, cp, st, sp;
+        UGVec2<T> pos2;
+        UGVec3<T> pos3;
+
+        dI = (qI.a - qI.b).length();
+        dP = (qP.a - qP.b).length();
+        scale = dP / dI;
+        
+        aI = (qI.a - qI.b).angle();
+        aP = (qP.a - qP.b).angle();
+        rot = aP - aI;
+
+        pos2 = qP.a - qI.a.rotate(rot)/scale;
+
+        ct = cos(qP.theta);
+        cp = cos(qP.phi);
+        st = sin(qP.theta);
+        sp = sin(qP.phi);
+
+        pos3 = UGVec3<T>(
+                cp*ct*pos2.x - sp*pos2.y + cp*st*scale,
+                sp*ct*pos2.x + cp*pos2.y + sp*st*scale,
+                - st*pos2.x + ct*scale
+                );
+
+        return UGResult<T>(pos3,UGDirection<T>(qP.theta,qP.phi),rot, 0.0);
+    }
 		
 private:
     inline const bool orient(UGVec2<T>u, UGVec2<T>v) 
