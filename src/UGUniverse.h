@@ -16,25 +16,31 @@ public:
 
     UGUniverse(): stars(std::vector<UGVec3<T> >()) {}
     UGUniverse(std::vector<UGVec3<T> > stars): stars(stars) {}
+    UGUniverse(size_t n, T r): stars(std::vector<UGVec3<T> >()) 
+        { randomise(n,r); }
 
     UGImage<T> project(T theta, T phi) 
     {
         UGImage<T> img;
         
         T u, v;
-
-        for(UGVec3<T> star : stars) {
-            u = cos(phi)*cos(theta)*star.x 
-                + sin(phi)*cos(theta)*star.y
-                - sin(theta)*star.z;
-            v = - sin(phi)*star.x 
-                + cos(phi)*star.y;
-            img.stars.push_back(UGVec2<T>(u,v));
+        
+#pragma omp parallel for
+        for(auto star = stars.begin(); star < stars.end(); star++) {
+            u = cos(phi)*cos(theta)*star->x 
+                + sin(phi)*cos(theta)*star->y
+                - sin(theta)*star->z;
+            v = - sin(phi)*star->x 
+                + cos(phi)*star->y;
+#pragma omp critical(addStarToImageVector)
+            {
+                img.stars.push_back(UGVec2<T>(u,v));
+            }
         }
         return img;
     }
 
-    void randomise(int n, T r)
+    void randomise(size_t n, T r)
     {
         stars.resize(n);
         for(UGVec3<T> star : stars) {

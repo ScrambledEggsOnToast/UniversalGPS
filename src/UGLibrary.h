@@ -27,8 +27,8 @@ public:
         T increment = M_PI * (3 - sqrt(5));
 
         T th, ph;
-
-        for(size_t i = 0; i != n; i++)
+        
+        for(size_t i = 0; i < n; i++)
         {
             th = acos(((T)i * offset) - 1 + (offset / 2));
             ph = (T)i * increment;
@@ -61,8 +61,6 @@ public:
                 KDTreeSingleIndexAdaptorParams(10));
         quadKdtree->buildIndex();
     }
-
-    
 
 private:
     typename UGQuadSet<T>::kdtree* quadKdtree;

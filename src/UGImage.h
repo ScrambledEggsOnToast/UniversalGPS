@@ -51,15 +51,15 @@ public:
 
         std::vector<size_t> ret_indexes(4);
         std::vector<T> out_dists_sqr(4);
-    
-        UGQuad<T> quad;
-        
-        for(UGVec2<T> star : stars) {
-            queryPoint[0] = star.x;
-            queryPoint[1] = star.y;
 
-            nanoflann::KNNResultSet<T> resultSet(4);
-            resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
+        nanoflann::KNNResultSet<T> resultSet(4);
+        resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
+            
+#pragma omp parallel for
+        for(auto star = stars.begin(); star < stars.end(); star++) {
+            queryPoint[0] = star->x;
+            queryPoint[1] = star->y;
+
             index.findNeighbors(
                     resultSet,
                     &queryPoint[0],
@@ -70,9 +70,12 @@ public:
             UGVec2<T> c = stars[ret_indexes[2]];
             UGVec2<T> d = stars[ret_indexes[3]];
 
-            quad = UGQuad<T>(a,b,c,d,theta,phi);
+            UGQuad<T>quad = UGQuad<T>(a,b,c,d,theta,phi);
 
-            quadset.quads.push_back(quad);
+#pragma omp critical(addQuadToQuadset)
+            {
+                quadset.quads.push_back(quad);
+            }
         }
 
     }
