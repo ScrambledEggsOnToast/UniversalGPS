@@ -40,7 +40,7 @@ public:
         return dirs;
     }
 
-    UGVec3<T> unit(){
+    UGVec3<T> unit() const{
         T ct,cp,st,sp;
         ct = cos(theta);
         cp = cos(phi);
@@ -51,6 +51,11 @@ public:
                 sp*st,
                 ct
                 );
+    }
+
+    static T dist(const UGDirection<T>& a, const UGDirection<T>& b)
+    {
+        return (a.unit()-b.unit()).length2();
     }
 
 };

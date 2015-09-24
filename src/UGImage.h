@@ -33,7 +33,22 @@ public:
         { return dim == 0 ? stars[idx].x : stars[idx].y; }
         
     template <class BBOX>
-	bool kdtree_get_bbox(BBOX& /* bb */) const { return false; }
+	bool kdtree_get_bbox(BBOX& bb) const 
+    { 
+        bb[0].low = stars[0].x;
+        bb[0].high = stars[0].x;
+        bb[1].low = stars[0].y;
+        bb[1].high = stars[0].y;
+
+        for (auto star = stars.begin() + 1; star < stars.end(); star++)
+        {
+            if(star->x < bb[0].low) bb[0].low = star->x;
+            else if(star->x > bb[0].high) bb[0].high = star->x;
+            if(star->y < bb[1].low) bb[1].low = star->y;
+            else if(star->y > bb[1].high) bb[1].high = star->y;
+        }
+        return true; 
+    }
 
     typedef KDTreeSingleIndexAdaptor<
             L2_Simple_Adaptor<T, UGImage<T> >,

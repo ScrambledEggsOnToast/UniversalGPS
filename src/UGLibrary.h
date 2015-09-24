@@ -29,9 +29,15 @@ public:
         quadKdtree = new typename UGQuadSet<T>::kdtree(
                 7,
                 *quadset,
-                KDTreeSingleIndexAdaptorParams(10));
+                KDTreeSingleIndexAdaptorParams(1000));
         quadKdtree->buildIndex();
 
+    }
+
+    ~UGLibrary()
+    {
+        if (quadset) delete quadset;
+        if (quadKdtree) delete quadKdtree;
     }
 
     const UGResult<T> search(UGImage<T>& img, T filterRadius=NULL)
@@ -43,6 +49,7 @@ public:
 
         std::vector<UGResult<T> > results;
 
+        std::cout << "Searching" << std::endl;
 #pragma omp parallel for
         for(auto q = qs.quads.begin(); q < qs.quads.end(); q++)
         {
@@ -57,28 +64,27 @@ public:
             }
         }
 
-        std::cout << "Calculated image quad results" << std::endl;
-
-        std::vector<UGResult<T> > resultsFiltered;
+        std::vector<UGResult<T> > *resultsFiltered;
         if (filterRadius)
         {
             // discard results without close others
+            resultsFiltered = new std::vector<UGResult<T> >();
             for(auto r1 = results.begin(); r1 < results.end(); r1++)
             {
                 for(auto r2 = r1 + 1; r2 < results.end(); r2++)
                 {
-                    if((r2->loc - r1->loc).length()<filterRadius)
+                    if(UGDirection<T>::dist(r1->dir,r2->dir)<filterRadius)
                     {
-                        resultsFiltered.push_back(*r1);
+                        resultsFiltered->push_back(*r1);
                         break;
                     }
                 }
             }
-            std::cout << "Found " << resultsFiltered.size() << " matches" << std::endl;
+            std::cout << "Found " << resultsFiltered->size() << " matches" << std::endl;
         }
         else
         {
-            resultsFiltered = results;
+            resultsFiltered = &results;
         }
 
         // compute average result
@@ -86,7 +92,7 @@ public:
         UGDirection<T> aDirection;
         UGVec2<T> aRollVec;
         T aError, aRoll;
-        for(auto res = resultsFiltered.begin(); res < resultsFiltered.end(); res++)
+        for(auto res = resultsFiltered->begin(); res < resultsFiltered->end(); res++)
         {
             aLocation += res->loc/res->err;
             aDirVec += res->dir.unit()/res->err;
@@ -97,6 +103,8 @@ public:
         aLocation = aLocation*aError;
         aDirection = UGDirection<T>(aDirVec);
         aRoll = aRollVec.angle();
+
+        delete resultsFiltered;
         
         return UGResult<T>(
                 aLocation,
