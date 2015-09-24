@@ -29,7 +29,8 @@ public:
         return dx*dx + dy*dy;
     }
 
-    inline T kdtree_get_pt(const size_t idx, int dim) const { return dim == 0 ? stars[idx].x : stars[idx].y; }
+    inline T kdtree_get_pt(const size_t idx, int dim) const 
+        { return dim == 0 ? stars[idx].x : stars[idx].y; }
         
     template <class BBOX>
 	bool kdtree_get_bbox(BBOX& /* bb */) const { return false; }
@@ -46,20 +47,32 @@ public:
         kdtree index(2,*this,KDTreeSingleIndexAdaptorParams(10));
         index.buildIndex();
 
-        double queryPoint[2];
+        T queryPoint[2];
 
         std::vector<size_t> ret_indexes(4);
         std::vector<T> out_dists_sqr(4);
-
-        for(typename std::vector<UGVec2<T> >::size_type i = 0; i != stars.size(); i++) {
-            queryPoint[0] = stars[i].x;
-            queryPoint[1] = stars[i].y;
+    
+        UGQuad<T> quad;
+        
+        for(UGVec2<T> star : stars) {
+            queryPoint[0] = star.x;
+            queryPoint[1] = star.y;
 
             nanoflann::KNNResultSet<T> resultSet(4);
             resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
-            index.findNeighbors(resultSet,&queryPoint[0],nanoflann::SearchParams(10));
+            index.findNeighbors(
+                    resultSet,
+                    &queryPoint[0],
+                    nanoflann::SearchParams(10));
+            
+            UGVec2<T> a = stars[ret_indexes[0]];
+            UGVec2<T> b = stars[ret_indexes[1]];
+            UGVec2<T> c = stars[ret_indexes[2]];
+            UGVec2<T> d = stars[ret_indexes[3]];
 
-            quadset.quads.insert(quadset.quads.end(), UGQuad<T>(stars[ret_indexes[0]],stars[ret_indexes[1]],stars[ret_indexes[2]],stars[ret_indexes[3]],theta,phi));
+            quad = UGQuad<T>(a,b,c,d,theta,phi);
+
+            quadset.quads.push_back(quad);
         }
 
     }

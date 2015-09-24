@@ -20,14 +20,16 @@ public:
     UGImage<T> project(T theta, T phi) 
     {
         UGImage<T> img;
-        img.stars.resize(stars.size());
         
         T u, v;
 
-        for(typename std::vector<UGVec3<T> >::size_type i = 0; i != stars.size(); i++) {
-            u = cos(phi)*cos(theta)*stars[i].x + sin(phi)*cos(theta)*stars[i].y - sin(theta)*stars[i].z;
-            v = -sin(phi)*stars[i].x + cos(phi)*stars[i].y;
-            img.stars[i] = UGVec2<T>(u,v);
+        for(UGVec3<T> star : stars) {
+            u = cos(phi)*cos(theta)*star.x 
+                + sin(phi)*cos(theta)*star.y
+                - sin(theta)*star.z;
+            v = - sin(phi)*star.x 
+                + cos(phi)*star.y;
+            img.stars.push_back(UGVec2<T>(u,v));
         }
         return img;
     }
@@ -35,10 +37,10 @@ public:
     void randomise(int n, T r)
     {
         stars.resize(n);
-        for(typename std::vector<UGVec3<T> >::size_type i = 0; i != stars.size(); i++) {
-            stars[i].x = r * rand() / T(RAND_MAX);
-            stars[i].y = r * rand() / T(RAND_MAX);
-            stars[i].z = r * rand() / T(RAND_MAX);
+        for(UGVec3<T> star : stars) {
+            star.x = r * rand() / T(RAND_MAX);
+            star.y = r * rand() / T(RAND_MAX);
+            star.z = r * rand() / T(RAND_MAX);
         }
     }   
 

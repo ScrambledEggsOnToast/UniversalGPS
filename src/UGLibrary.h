@@ -48,13 +48,17 @@ public:
     UGLibrary(UGUniverse<T> &univ, std::vector<UGDirection <T> > &dirs) {
         UGQuadSet<T> qs;
 
-        for(typename std::vector<UGDirection <T> >::iterator it = dirs.begin(); it != dirs.end(); ++it) {
-            univ.project(it->theta, it->phi).calculateQuads(qs, it->theta, it->phi);
+        for(UGDirection<T> dir : dirs) {
+            univ.project(dir.theta, dir.phi)
+                .calculateQuads(qs, dir.theta, dir.phi);
 
-            std::cout << it->theta << std::endl;
+            std::cout << dir.theta << std::endl;
         }
 
-        quadKdtree = new typename UGQuadSet<T>::kdtree(7,qs,KDTreeSingleIndexAdaptorParams(10));
+        quadKdtree = new typename UGQuadSet<T>::kdtree(
+                7,
+                qs,
+                KDTreeSingleIndexAdaptorParams(10));
         quadKdtree->buildIndex();
     }
 

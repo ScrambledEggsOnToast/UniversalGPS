@@ -17,16 +17,31 @@ public:
     bool o1, o2, o3;
     UGVec2<T> a, b;
 	
-    UGQuad() : h1(0), h2(0), h3(0), h4(0), theta(0), phi(0), o1(false), o2(false), o3(false), a(UGVec2<T>()), b(UGVec2<T>()) {}
-	UGQuad(T h1, T h2, T h3, T h4, T theta, T phi, bool o1, bool o2, bool o3, UGVec2<T> a, UGVec2<T> b) : h1(h1), h2(h2), h3(h3), h4(h4), theta(theta), phi(phi), o1(o1), o2(o2), o3(o3), a(a), b(b) {}
-	UGQuad(const UGQuad& v) : h1(v.h1), h2(v.h2), h3(v.h3), h4(v.h4), theta(v.theta), phi(v.phi), o1(v.o1), o2(v.o2), o3(v.o3), a(v.a), b(v.b) {}
+    UGQuad() : h1(0), h2(0), h3(0), h4(0), 
+        theta(0), phi(0), o1(false), o2(false), o3(false), 
+        a(UGVec2<T>()), b(UGVec2<T>()) {}
 
-    UGQuad(UGVec2<T> a0, UGVec2<T> b0, UGVec2<T> c0, UGVec2<T> d0, T theta0, T phi0) {
-        UGVec2<T> db = b0 - a0;
-        UGVec2<T> dc = c0 - a0;
-        UGVec2<T> dd = d0 - a0;
-        UGVec2<T> yAxis(0.5 * (db.x - db.y), 0.5 * (db.x + db.y));
-        UGVec2<T> xAxis = yAxis.ortho();
+	UGQuad(T h1, T h2, T h3, T h4, 
+            T theta, T phi, bool o1, bool o2, bool o3, 
+            UGVec2<T> a, UGVec2<T> b) : 
+        h1(h1), h2(h2), h3(h3), h4(h4), 
+        theta(theta), phi(phi), 
+        o1(o1), o2(o2), o3(o3), a(a), b(b) {}
+
+	UGQuad(const UGQuad& v) : 
+        h1(v.h1), h2(v.h2), h3(v.h3), h4(v.h4), 
+        theta(v.theta), phi(v.phi), o1(v.o1), o2(v.o2), o3(v.o3), 
+        a(v.a), b(v.b) {}
+
+    UGQuad(UGVec2<T> a0, UGVec2<T> b0, UGVec2<T> c0, UGVec2<T> d0,
+            T theta0, T phi0) {
+        UGVec2<T> db,dc,dd,xAxis,yAxis;
+
+        db = b0 - a0;
+        dc = c0 - a0;
+        dd = d0 - a0;
+        yAxis.set(0.5 * (db.x - db.y), 0.5 * (db.x + db.y));
+        xAxis = yAxis.ortho();
         T xy = xAxis.length();
 
         h1 = UGVec2<T>::dot(dc,xAxis) / xy;
@@ -60,7 +75,8 @@ public:
 		return *this;
 	}
 	
-	void set(T h1, T h2, T h3, T h4, bool o1, bool o2, bool o3, UGVec2<T> a, UGVec2<T> b) {
+	void set(T h1, T h2, T h3, T h4, bool o1, bool o2, bool o3, 
+            UGVec2<T> a, UGVec2<T> b) {
 		this->h1 = h1;
 		this->h2 = h2;
         this->h3 = h3;
@@ -75,7 +91,8 @@ public:
 	}
 		
 private:
-    const bool orient(UGVec2<T>u, UGVec2<T>v) { return u.x*v.y - v.x*u.y > 0; }
+    inline const bool orient(UGVec2<T>u, UGVec2<T>v) 
+        { return u.x*v.y - v.x*u.y > 0; }
 };
 
 
@@ -92,7 +109,9 @@ public:
 
     inline T kdtree_distance(const T* p1, const size_t idx_p2, size_t) const 
     { 
-        if((bool)p1[0] == quads[idx_p2].o1 && (bool)p1[1] == quads[idx_p2].o2 && (bool)p1[2] == quads[idx_p2].o3)
+        if((bool)p1[0] == quads[idx_p2].o1 
+                && (bool)p1[1] == quads[idx_p2].o2 
+                && (bool)p1[2] == quads[idx_p2].o3)
         {
             const T d1 = p1[3] - quads[idx_p2].h1; 
             const T d2 = p1[4] - quads[idx_p2].h2; 
