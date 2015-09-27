@@ -2,50 +2,51 @@
 
 #include <iostream>
 
-#include <armadillo>
+#include "_ug.h"
 
-#include "UGVec2.h"
-#include "UGVec3.h"
-#include "UGUniverse.h"
-#include "UGImage.h"
-#include "UGQuad.h"
-#include "UGLibrary.h"
+#include "Vec3.h"
+#include "Direction.h"
+#include "Index.h"
 
-using namespace arma;
-
-typedef double ug;
-typedef Mat<ug> ugmat;
+using namespace ugps;
 
 int main(int argc, char *argv[]) {
-    srand (static_cast <unsigned> (time(0)));
 
-    size_t numStars = 10;
-    std::cout << "Generating " << numStars << " stars..." << std::endl;
-    UGUniverse<ug> *univ = new UGUniverse<ug>();
-    univ->randomise(numStars,1);
-
-    size_t numDirs = 100000;
+    const size_t numStars = 10;
+    const size_t numDirs = 100000;
+    const num_ug universeRadius = 10;
     
-    std::cout << "Generating " << numDirs << " directions..." << std::endl;
-    auto dirs = UGDirection<ug>::fibonacci(numDirs);
+    std::vector<Vec3> stars;
+    vector<shared_ptr<const Vec3> > starPtrs;
 
-    std::cout << "Building library..." << std::endl;
-    UGLibrary<ug> *lib = new UGLibrary<ug>(*univ, dirs, 1);
+    std::random_device rd;
+    std::mt19937 mt(rd());
 
-    UGDirection<ug> imgDir(0,0);
-    UGImage<ug> img;
-    UGResult<ug> r;
-
-    for(int i = 0; i<1000; i++)
-    {
-        imgDir.theta = (ug)i;
-        img = univ->project((ug)i,0);
-        r = lib->search(img, sqrt(4*M_PI/(ug)numDirs));
-
-        std::cout << (r.loc-imgDir.unit()).length() << ",";
+    std::uniform_real_distribution<num_ug> dist (-universeRadius,universeRadius);
+    for(size_t i = 0; i < numStars; i++) {
+        Vec3 star;
+        star.x = dist(mt);
+        star.y = dist(mt);
+        star.z = dist(mt);
+        stars.push_back(star);
+        starPtrs.push_back(make_shared<const Vec3>(star));
     }
 
-    delete lib;
-    delete univ;
+    std::vector<Direction> dirs = fibonacciDirections(numDirs);
+
+    Index index(stars, dirs);
+
+    int tests = 100;
+
+    for(int i = 0; i<tests; i++)
+    {
+        num_ug theta = M_PI*(num_ug)i/(num_ug)tests;
+
+        Projection img(Direction(theta,0), starPtrs);
+
+        Pose3 pose = index.search(img);
+
+        std::cout << theta << "," << pose.dir.theta << std::endl;
+    }
 
 }

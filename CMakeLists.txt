@@ -65,7 +65,13 @@ ENDFOREACH (CONFIGINPUT ${CONFIGINPUTS})
 # Add Build Targets
 #
 
-FILE (GLOB src/*)
+FILE (GLOB src/Vec2.cpp)
+FILE (GLOB src/Vec3.cpp)
+FILE (GLOB src/Direction.cpp)
+FILE (GLOB src/ProjectedStar.cpp)
+FILE (GLOB src/Projection.cpp)
+FILE (GLOB src/Quad.cpp)
+FILE (GLOB src/Index.cpp)
 
 # Add thirdparty directories first!
 ADD_SUBDIRECTORY(thirdparty/gmock-1.7.0)
