@@ -6,10 +6,14 @@
 
 #include <cmath>
 
+#include <armadillo>
+
 #include "UGVec2.h"
 #include "UGVec3.h"
+#include "UGImage.h"
 
 using namespace nanoflann;
+using namespace arma;
 
 template <class T>
 class UGDirection
@@ -55,7 +59,19 @@ public:
 
     static T dist(const UGDirection<T>& a, const UGDirection<T>& b)
     {
-        return (a.unit()-b.unit()).length2();
+        return acos(cos(a.theta)*cos(b.theta) + sin(a.theta)*sin(b.theta)*cos(a.phi-b.phi));
+    }
+
+    static void refine(std::vector<UGDirection<T> >& dirs)
+    {
+        //TODO
+
+        const std::vector<UGDirection<T> > dirscp = dirs;
+
+        for(size_t i = 0; i < dirscp.size(); i++)
+        {
+            
+        }
     }
 
 };
@@ -79,30 +95,15 @@ public:
 	T h1, h2, h3, h4, theta, phi;
     bool o1, o2, o3;
     UGVec2<T> a, b;
+    UGVec3<T> ba, ca, da;
 	
-    UGQuad() : h1(0), h2(0), h3(0), h4(0), 
-        theta(0), phi(0), o1(false), o2(false), o3(false), 
-        a(UGVec2<T>()), b(UGVec2<T>()) {}
-
-	UGQuad(T h1, T h2, T h3, T h4, 
-            T theta, T phi, bool o1, bool o2, bool o3, 
-            UGVec2<T> a, UGVec2<T> b) : 
-        h1(h1), h2(h2), h3(h3), h4(h4), 
-        theta(theta), phi(phi), 
-        o1(o1), o2(o2), o3(o3), a(a), b(b) {}
-
-	UGQuad(const UGQuad& v) : 
-        h1(v.h1), h2(v.h2), h3(v.h3), h4(v.h4), 
-        theta(v.theta), phi(v.phi), o1(v.o1), o2(v.o2), o3(v.o3), 
-        a(v.a), b(v.b) {}
-
-    UGQuad(UGVec2<T> a0, UGVec2<T> b0, UGVec2<T> c0, UGVec2<T> d0,
+    UGQuad(const UGImageStar<T>& a0, const UGImageStar<T>& b0, const UGImageStar<T>& c0, const UGImageStar<T>& d0,
             T theta0, T phi0) {
         UGVec2<T> db,dc,dd,xAxis,yAxis;
 
-        db = b0 - a0;
-        dc = c0 - a0;
-        dd = d0 - a0;
+        db = b0.pos - a0.pos;
+        dc = c0.pos - a0.pos;
+        dd = d0.pos - a0.pos;
         yAxis.set(0.5 * (db.x - db.y), 0.5 * (db.x + db.y));
         xAxis = yAxis.ortho();
         T xy = xAxis.length();
@@ -119,39 +120,13 @@ public:
         o2 = orient(dc,dd);
         o3 = orient(dd,db);
 
-        a = a0;
-        b = b0;
+        a = a0.pos;
+        b = b0.pos;
+        
+        ba = b0.ref - a0.ref;
+        ca = c0.ref - a0.ref;
+        da = d0.ref - a0.ref;
     }
-
-	UGQuad& operator=(const UGQuad& v) {
-		h1 = v.h1;
-        h2 = v.h2;
-        h3 = v.h3;
-        h4 = v.h4;
-        theta = v.theta;
-        phi = v.phi;
-        o1 = v.o1;
-        o2 = v.o2;
-        o3 = v.o3;
-        a = v.a;
-        b = v.b;
-		return *this;
-	}
-	
-	void set(T h1, T h2, T h3, T h4, bool o1, bool o2, bool o3, 
-            UGVec2<T> a, UGVec2<T> b) {
-		this->h1 = h1;
-		this->h2 = h2;
-        this->h3 = h3;
-        this->h4 = h4;
-        this->theta = theta;
-        this->phi = phi;
-        this->o1 = o1;
-        this->o2 = o2;
-        this->o3 = o3;
-        this->a = a;
-        this->b = b;
-	}
 
     static const UGResult<T> quadResult(const UGQuad<T>& qI, const UGQuad<T>& qP)
     {
@@ -168,23 +143,107 @@ public:
         rot = aP - aI;
 
         pos2 = qP.a - qI.a.rotate(rot)/scale;
+        
+        //Start first order direction correction
+        T th = qP.theta;
+        T ph = qP.phi;
+        T Dth, Dph;
 
-        ct = cos(qP.theta);
-        cp = cos(qP.phi);
-        st = sin(qP.theta);
-        sp = sin(qP.phi);
+        Mat<T> Bth(3,3);
+        Bth(0,0) = pow(cos(ph),2.0)*cos(th)*sin(th)*-2.0;
+        Bth(0,1) = -sin(th)*(cos(ph)*cos(th)*sin(ph)*2.0+1.0);
+        Bth(0,2) = -cos(ph)+cos(th)*sin(ph)+cos(ph)*pow(cos(th),2.0)*2.0;
+        Bth(1,0) = -sin(th)*(cos(ph)*cos(th)*sin(ph)*2.0-1.0);
+        Bth(1,1) = cos(th)*pow(sin(ph),2.0)*sin(th)*-2.0;
+        Bth(1,2) = -sin(ph)-cos(ph)*cos(th)+pow(cos(th),2.0)*sin(ph)*2.0;
+        Bth(2,0) = -cos(ph)-cos(th)*sin(ph)+cos(ph)*pow(cos(th),2.0)*2.0;
+        Bth(2,1) = -sin(ph)+cos(ph)*cos(th)+pow(cos(th),2.0)*sin(ph)*2.0;
+        Bth(2,2) = sin(th*2.0);
+
+        Mat<T> Bph(3,3);
+        Bth(0,0) = cos(ph)*sin(ph)*pow(sin(th),2.0)*2.0;
+        Bth(0,1) = pow(sin(th),2.0)*(pow(sin(ph),2.0)*2.0-1.0);
+        Bth(0,2) = sin(th)*(cos(ph)-cos(th)*sin(ph));
+        Bth(1,0) = pow(sin(th),2.0)*(pow(sin(ph),2.0)*2.0-1.0);
+        Bth(1,1) = cos(ph)*sin(ph)*pow(sin(th),2.0)*-2.0;
+        Bth(1,2) = sin(th)*(sin(ph)+cos(ph)*cos(th));
+        Bth(2,0) = -sin(th)*(cos(ph)+cos(th)*sin(ph));
+        Bth(2,1) = -sin(th)*(sin(ph)-cos(ph)*cos(th));
+
+        Mat<T> Cth(3,3);
+        Cth(0,0) = pow(cos(ph),2.0)*cos(th)*sin(th)*-2.0;
+        Cth(0,1) = sin(ph*2.0)*sin(th*2.0)*(-1.0/2.0);
+        Cth(0,2) = cos(th*2.0)*cos(ph);
+        Cth(1,0) = sin(ph*2.0)*sin(th*2.0)*(-1.0/2.0);
+        Cth(1,1) = cos(th)*pow(sin(ph),2.0)*sin(th)*-2.0;
+        Cth(1,2) = cos(th*2.0)*sin(ph);
+        Cth(2,0) = cos(th*2.0)*cos(ph);
+        Cth(2,1) = cos(th*2.0)*sin(ph);
+        Cth(2,2) = sin(th*2.0);
+
+        Mat<T> Cph(3,3);
+        Cph(0,0) = cos(ph)*sin(ph)*pow(sin(th),2.0)*2.0;
+        Cph(0,1) = cos(ph*2.0)*(cos(th*2.0)*(1.0/2.0)-1.0/2.0);
+        Cph(0,2) = -cos(th)*sin(ph)*sin(th);
+        Cph(1,0) = cos(ph*2.0)*(cos(th*2.0)*(1.0/2.0)-1.0/2.0);
+        Cph(1,1) = cos(ph)*sin(ph)*pow(sin(th),2.0)*-2.0;
+        Cph(1,2) = cos(ph)*cos(th)*sin(th);
+        Cph(2,0) = -cos(th)*sin(ph)*sin(th);
+        Cph(2,1) = cos(ph)*cos(th)*sin(th);
+
+        T dh1,dh2,dh3,dh4;
+        dh1 = qI.h1-qP.h1;
+        dh2 = qI.h2-qP.h2;
+        dh3 = qI.h3-qP.h3;
+        dh4 = qI.h4-qP.h4;
+
+        Col<T> dhs = {dh1/qP.h1,dh2/qP.h2,dh3/qP.h3,dh4/qP.h4};
+        dhs *= dP*dP;
+
+        Mat<T> M(4,2);
+
+        M(0,0) = ((qP.ca.row()*Bth+qP.ba.row()*Cth)*qP.ba.col()).eval()[0];
+        M(0,1) = ((qP.ca.row()*Bph+qP.ba.row()*Cph)*qP.ba.col()).eval()[0];
+        M(1,0) = ((qP.ca.row()*Bth.t()+qP.ba.row()*Cth.t())*qP.ba.col()).eval()[0];
+        M(1,1) = ((qP.ca.row()*Bph.t()+qP.ba.row()*Cph.t())*qP.ba.col()).eval()[0];
+
+        M(2,0) = ((qP.da.row()*Bth+qP.ba.row()*Cth)*qP.ba.col()).eval()[0];
+        M(2,1) = ((qP.da.row()*Bph+qP.ba.row()*Cph)*qP.ba.col()).eval()[0];
+        M(3,0) = ((qP.da.row()*Bth.t()+qP.ba.row()*Cth.t())*qP.ba.col()).eval()[0];
+        M(3,1) = ((qP.da.row()*Bph.t()+qP.ba.row()*Cph.t())*qP.ba.col()).eval()[0];
+
+        Mat<T> mult = {{sqrt(2),0},{0,1/sin(th)}};
+
+        M = M*mult;
+
+        Mat<T> I = mult*pinv(M);
+
+        Mat<T> res = (I*dhs).eval();
+
+        Dth = res[0];
+        Dph = res[1];
+
+        UGDirection<T> dir(th+Dth, ph+Dph);
+        //end first order direction correction
+
+        ct = cos(dir.theta);
+        cp = cos(dir.phi);
+        st = sin(dir.theta);
+        sp = sin(dir.phi);
 
         pos3 = UGVec3<T>(
                 cp*ct*pos2.x - sp*pos2.y + cp*st*scale,
                 sp*ct*pos2.x + cp*pos2.y + sp*st*scale,
                 - st*pos2.x + ct*scale
                 );
+        
 
-        return UGResult<T>(pos3,UGDirection<T>(qP.theta,qP.phi),rot, 0.0);
+
+        return UGResult<T>(pos3,dir,rot, 0.0);
     }
 		
 private:
-    inline const bool orient(UGVec2<T>u, UGVec2<T>v) 
+    inline bool orient(const UGVec2<T>& u, const UGVec2<T>& v) const
         { return u.x*v.y - v.x*u.y > 0; }
 };
 

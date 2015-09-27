@@ -3,6 +3,7 @@
 #define UGLIBRARY_H
 
 #include <cstdlib>
+#include <memory>
 
 #include <nanoflann.hpp>
 
@@ -11,22 +12,30 @@
 #include "UGUniverse.h"
 
 using namespace nanoflann;
+using namespace std;
 
 
 template <class T>
 class UGLibrary
 {
 public:
-    UGLibrary(UGUniverse<T> &univ, std::vector<UGDirection <T> > &dirs)
+    UGLibrary(const UGUniverse<T> &univ, const std::vector<UGDirection <T> > &dirs, const size_t skip = 1)
     {
-        quadset = new UGQuadSet<T>();
+        quadset = make_unique<UGQuadSet<T> >( );
+        
+        size_t offset = 0;
 
-        for(UGDirection<T> dir : dirs) {
-            univ.project(dir.theta, dir.phi)
-                .calculateQuads(*quadset, dir.theta, dir.phi);
+        for(size_t i = 0; i < dirs.size(); i++) {
+            univ.project(dirs[i].theta, dirs[i].phi, offset, skip)
+                .calculateQuads(*quadset, dirs[i].theta, dirs[i].phi);
+            if(skip>1)
+            {
+                offset++;
+                if(offset==skip) offset=0;
+            }
         }
 
-        quadKdtree = new typename UGQuadSet<T>::kdtree(
+        quadKdtree = make_unique<typename UGQuadSet<T>::kdtree>(
                 7,
                 *quadset,
                 KDTreeSingleIndexAdaptorParams(1000));
@@ -34,22 +43,13 @@ public:
 
     }
 
-    ~UGLibrary()
-    {
-        if (quadset) delete quadset;
-        if (quadKdtree) delete quadKdtree;
-    }
-
-    const UGResult<T> search(UGImage<T>& img, T filterRadius=NULL)
+    UGResult<T> search(const UGImage<T>& img, T filterRadius = NULL) const
     {
         UGQuadSet<T> qs;
         img.calculateQuads(qs);
 
-        std::cout << "Calculated image quads" << std::endl;
-
         std::vector<UGResult<T> > results;
 
-        std::cout << "Searching" << std::endl;
 #pragma omp parallel for
         for(auto q = qs.quads.begin(); q < qs.quads.end(); q++)
         {
@@ -71,8 +71,9 @@ public:
             resultsFiltered = new std::vector<UGResult<T> >();
             for(auto r1 = results.begin(); r1 < results.end(); r1++)
             {
-                for(auto r2 = r1 + 1; r2 < results.end(); r2++)
+                for(auto r2 = results.begin(); r2 < results.end(); r2++)
                 {
+                    if(r1==r2) continue;
                     if(UGDirection<T>::dist(r1->dir,r2->dir)<filterRadius)
                     {
                         resultsFiltered->push_back(*r1);
@@ -80,11 +81,11 @@ public:
                     }
                 }
             }
-            std::cout << "Found " << resultsFiltered->size() << " matches" << std::endl;
+            //std::cout << "Found " << resultsFiltered->size() << " matches" << std::endl;
         }
         else
         {
-            resultsFiltered = &results;
+            resultsFiltered = new auto(results);
         }
 
         // compute average result
@@ -116,10 +117,10 @@ public:
     }
 
 private:
-    UGQuadSet<T>* quadset;
-    typename UGQuadSet<T>::kdtree* quadKdtree;
+    unique_ptr<UGQuadSet<T> > quadset;
+    unique_ptr<typename UGQuadSet<T>::kdtree > quadKdtree;
 
-    UGQuad<T>* searchQuad(UGQuad<T> quad, T& error = nullptr)
+    UGQuad<T>* searchQuad(const UGQuad<T>& quad, T& error = nullptr) const
     {
         size_t ret_index;
         

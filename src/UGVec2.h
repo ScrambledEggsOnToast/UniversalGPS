@@ -3,6 +3,11 @@
 #define UGVEC2_H
 
 #include <cmath>
+#include <armadillo>
+
+#include "UGVec3.h"
+
+using namespace arma;
 
 template <class T>
 class UGVec2 {
@@ -14,71 +19,71 @@ public:
 	UGVec2(const UGVec2& v) : x(v.x), y(v.y) {}
     UGVec2(T theta) : x(cos(theta)), y(sin(theta)) {}
 	
-	UGVec2& operator=(const UGVec2& v) {
+	inline UGVec2& operator=(const UGVec2& v) {
 		x = v.x;
 		y = v.y;
 		return *this;
 	}
 	
-	UGVec2 operator+(const UGVec2& v) const {
+	inline UGVec2 operator+(const UGVec2& v) const {
 		return UGVec2(x + v.x, y + v.y);
 	}
-	UGVec2 operator-(const UGVec2& v) const {
+	inline UGVec2 operator-(const UGVec2& v) const {
 		return UGVec2(x - v.x, y - v.y);
 	}
 	
-	UGVec2& operator+=(const UGVec2& v) {
+	inline UGVec2& operator+=(const UGVec2& v) {
 		x += v.x;
 		y += v.y;
 		return *this;
 	}
-	UGVec2& operator-=(const UGVec2& v) {
+	inline UGVec2& operator-=(const UGVec2& v) {
 		x -= v.x;
 		y -= v.y;
 		return *this;
 	}
 	
-	UGVec2 operator+(T s) const {
+	inline UGVec2 operator+(const T& s) const {
 		return UGVec2(x + s, y + s);
 	}
-	UGVec2 operator-(T s) const {
+	inline UGVec2 operator-(const T& s) const {
 		return UGVec2(x - s, y - s);
 	}
-	UGVec2 operator*(T s) const {
+	inline UGVec2 operator*(const T& s) const {
 		return UGVec2(x * s, y * s);
 	}
-	UGVec2 operator/(T s) const {
+	inline UGVec2 operator/(const T& s) const {
 		return UGVec2(x / s, y / s);
 	}
 	
 	
-	UGVec2& operator+=(T s) {
+	inline UGVec2& operator+=(const T& s) {
 		x += s;
 		y += s;
 		return *this;
 	}
-	UGVec2& operator-=(T s) {
+	inline UGVec2& operator-=(const T& s) {
 		x -= s;
 		y -= s;
 		return *this;
 	}
-	UGVec2& operator*=(T s) {
+	inline UGVec2& operator*=(const T& s) {
 		x *= s;
 		y *= s;
 		return *this;
 	}
-	UGVec2& operator/=(T s) {
+	inline UGVec2& operator/=(const T& s) {
 		x /= s;
 		y /= s;
 		return *this;
 	}
 	
-	void set(T x, T y) {
+	inline void set(const T& x, const T& y) {
 		this->x = x;
 		this->y = y;
 	}
 	
-	UGVec2 rotate(T theta) const {
+	UGVec2 rotate(const T& theta) const {
 		T c = cos(theta);
 		T s = sin(theta);
 		T tx = x * c - y * s;
@@ -92,7 +97,7 @@ public:
 		return *this;
 	}
 	
-	T dist(UGVec2 v) const {
+	T dist(const UGVec2<T>& v) const {
 		UGVec2 d(v.x - x, v.y - y);
 		return d.length();
 	}
@@ -102,7 +107,7 @@ public:
     T length2() const {
 		return x * x + y * y;
 	}
-	void truncate(T length) {
+	void truncate(const T& length) {
 		T angle = atan2f(y, x);
 		x = length * cos(angle);
 		y = length * sin(angle);
@@ -116,16 +121,36 @@ public:
 		return UGVec2(y, -x);
 	}
 	
-	static T dot(UGVec2 v1, UGVec2 v2) {
+	static T dot(const UGVec2<T>& v1, const UGVec2<T>& v2) {
 		return v1.x * v2.x + v1.y * v2.y;
 	}
-	static T cross(UGVec2 v1, UGVec2 v2) {
+	static T cross(const UGVec2<T>& v1, const UGVec2<T>& v2) {
 		return (v1.x * v2.y) - (v1.y * v2.x);
 	}
+
+    Col<T> col() const {
+        Col<T> c = {x,y};
+        return c;
+    }
+
+    Row<T> row() const {
+        Row<T> r = {x,y};
+        return r;
+    }
 	
 };
 
 typedef UGVec2<float> UGVec2f;
 typedef UGVec2<double> UGVec2d;
+
+template <class T>
+class UGImageStar
+{
+public:
+    UGVec2<T> pos;
+    UGVec3<T> ref;
+
+    UGImageStar(): pos(UGVec2<T>()), ref(UGVec3<T>()) {};
+};
 
 #endif
