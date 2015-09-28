@@ -17,6 +17,15 @@ namespace ugps
         Vec3 loc;
         Direction dir;
         num_ug roll;
+
+        Direction where(const Vec3& star3D) const
+        {
+            Vec3 relPos = star3D-loc;
+            relPos.rotateZ(-roll);
+            relPos.rotateY(-dir.theta);
+            relPos.rotateZ(-dir.phi);
+            return relPos;
+        }
     };
 
     struct Pose2

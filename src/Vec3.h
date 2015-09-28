@@ -45,6 +45,10 @@ namespace ugps
         friend Vec3 operator*(const Vec3& v, const num_ug& s) { return Vec3(v) *= s; }
         friend Vec3 operator/(const num_ug& s, const Vec3& v) { return Vec3(v) /= s; }
         friend Vec3 operator/(const Vec3& v, const num_ug& s) { return Vec3(v) /= s; }
+
+        void rotateX(num_ug angle);
+        void rotateY(num_ug angle);
+        void rotateZ(num_ug angle);
     };
 
 }
