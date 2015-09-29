@@ -16,9 +16,14 @@ namespace ugps
 
     Image::Image(const Pose3& pose3, const vector<shared_ptr<const Vec3> >& stars3D)
     {
-        for(auto star3D : stars3D)
+#pragma omp parallel for
+        for(auto star3D = stars3D.begin(); star3D < stars3D.end(); star3D++)
         {
-            stars.push_back(pose3.where(*star3D));
+            Direction dir = pose3.where(**star3D);
+#pragma omp critical(addDirection)
+            {
+                stars.push_back(dir);
+            }
         }
 
         buildIndex();

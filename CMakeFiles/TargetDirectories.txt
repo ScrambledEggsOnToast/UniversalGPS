@@ -1,0 +1,11 @@
+/home/joshkirklin/ugps-cpp/thirdparty/gmock-1.7.0/CMakeFiles/gmock.dir
+/home/joshkirklin/ugps-cpp/CMakeFiles/docs.dir
+/home/joshkirklin/ugps-cpp/thirdparty/gmock-1.7.0/gtest/CMakeFiles/gtest.dir
+/home/joshkirklin/ugps-cpp/thirdparty/gmock-1.7.0/gtest/CMakeFiles/gtest_main.dir
+/home/joshkirklin/ugps-cpp/CMakeFiles/doxygen.dir
+/home/joshkirklin/ugps-cpp/thirdparty/gmock-1.7.0/CMakeFiles/gmock_main.dir
+/home/joshkirklin/ugps-cpp/src/CMakeFiles/ugps.dir
+/home/joshkirklin/ugps-cpp/test/CMakeFiles/ugps-unittests.dir
+/home/joshkirklin/ugps-cpp/test/CMakeFiles/check.dir
+/home/joshkirklin/ugps-cpp/test/CMakeFiles/test.dir
+/home/joshkirklin/ugps-cpp/CMakeFiles/documentation.dir

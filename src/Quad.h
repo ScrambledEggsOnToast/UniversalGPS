@@ -8,6 +8,7 @@
 #include "Vec2.h"
 #include "Pose.h"
 #include "ProjectedStar.h"
+#include "Orientation.h"
 
 namespace ugps
 {
@@ -31,7 +32,7 @@ namespace ugps
         Pose2 measure(const shared_ptr<const Quad>& q) const;
 
         num_ug q1, q2, q3, q4;
-        bool o1, o2, o3, o4;
+        Orientation orientation;
         star_t a, b, c, d;
 
     private:
@@ -45,7 +46,7 @@ namespace ugps
             const star_t& b,
             const star_t& c,
             const star_t& d
-            ) : a(a), b(b), c(c), d(d)
+            ) : a(a), b(b), c(c), d(d), orientation(Orientation())
     {
         Vec2 db, dc, dd, xAxis, yAxis;
 
@@ -63,58 +64,10 @@ namespace ugps
         q3 = dot(dd,xAxis) / xy;
         q4 = dot(dd,yAxis) / xy;
 
-        o1 = orient(db,dc);
-        o2 = orient(dc,dd);
-        o3 = orient(dd,db);
-    }
-
-    template<class star_t, starToVec2Fn<star_t> vec2>
-    num_ug Quad<star_t,vec2>::dimension(int dim) const
-    {
-        switch(dim)
-        {
-            case 0:
-                return (num_ug)o1;
-                break;
-            case 1:
-                return (num_ug)o2;
-                break;
-            case 2:
-                return (num_ug)o3;
-                break;
-            case 3:
-                return q1;
-                break;
-            case 4:
-                return q2;
-                break;
-            case 5:
-                return q3;
-                break;
-            default:
-                return q4;
-                break;
-        }
-    }
-
-    template<class star_t, starToVec2Fn<star_t> vec2>
-    num_ug Quad<star_t,vec2>::distance(const num_ug* p1) const
-    {
-        if((bool)p1[0] == o1 
-                && (bool)p1[1] == o2 
-                && (bool)p1[2] == o3)
-        {
-            const num_ug d1 = p1[3] - q1; 
-            const num_ug d2 = p1[4] - q2; 
-            const num_ug d3 = p1[5] - q3; 
-            const num_ug d4 = p1[6] - q4; 
-            return d1*d1 + d2*d2 + d3*d3 + d4*d4;
-        }
-        else
-        {
-            return std::numeric_limits<num_ug>::max();
-        }
-    }        
+        orientation.o1 = orient(db,dc);
+        orientation.o2 = orient(dc,dd);
+        orientation.o3 = orient(dd,db);
+    }    
 
     Vec2 projectionVec2(const shared_ptr<const ProjectedStar>& proj);
 
@@ -221,7 +174,7 @@ namespace ugps
         
         //end first order direction correction
         
-        return Pose2(pos2,dir,scale,rot);
+        return Pose2(pos2,dir,rot,scale);
     }        
 
 }

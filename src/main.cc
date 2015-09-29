@@ -40,20 +40,20 @@ int main(int argc, char *argv[]) {
 
     Index index(stars, dirs);
 
-    int tests = 100;
+    int tests = 100000;
 
     for(int i = 0; i<tests; i++)
     {
         num_ug theta = M_PI*(num_ug)i/(num_ug)tests;
 
-        Direction spacecraftDir(theta,0);
-        Pose3 spacecraftPose(-100*spacecraftDir.unit(), spacecraftDir, 0);
+        Direction spacecraftDir(theta,theta);
+        Pose3 spacecraftPose(-1000*spacecraftDir.unit(), spacecraftDir, theta);
 
         Image img(spacecraftPose, starPtrs);
         
         Pose3 pose = index.search(img);
 
-        std::cout << theta << "," << dist(spacecraftDir, pose.dir) << std::endl;
+        std::cout << theta << "," << dist(spacecraftDir, pose.dir) << "," << pose.roll << std::endl;
 
     }
 

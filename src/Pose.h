@@ -21,9 +21,9 @@ namespace ugps
         Direction where(const Vec3& star3D) const
         {
             Vec3 relPos = star3D-loc;
-            relPos.rotateZ(-roll);
-            relPos.rotateY(-dir.theta);
             relPos.rotateZ(-dir.phi);
+            relPos.rotateY(-dir.theta);
+            relPos.rotateZ(-roll);
             return relPos;
         }
     };

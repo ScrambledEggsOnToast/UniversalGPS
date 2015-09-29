@@ -10,10 +10,9 @@ namespace ugps
     Index::Index(
             const std::vector<Vec3>& stars,
             const std::vector<Direction>& directions
-            )
+            ) : orientedIndex(Oriented<IndexEighth>())
     {
         shared_ptr<const Vec3> sharedStar;
-        shared_ptr<const Projection> sharedProjection;
 
         std::cout << "Collecting stars..." << std::endl;
         for(auto star : stars)
@@ -23,32 +22,24 @@ namespace ugps
         }
 
         std::cout << "Projecting stars..." << std::endl;
-        for(auto direction : directions)
+#pragma omp parallel for
+        for(auto direction = directions.begin(); direction < directions.end(); direction++)
         {
-            sharedProjection = make_shared<const Projection>(direction, sharedStars);
-            sharedProjections.push_back(sharedProjection);
+            auto sharedProjection = make_shared<const Projection>(*direction, sharedStars);
+#pragma omp critical(addSharedProjection)
+            {
+                sharedProjections.push_back(sharedProjection);
+            }
         }
 
-        quads = vector<shared_ptr<const ProjectionQuad> >();
         std::cout << "Calculating quads..." << std::endl;
         for(auto proj : sharedProjections)
         {
-            proj->calculateQuads(quads);
+            proj->calculateQuads(orientedIndex);
         }
 
-        std::cout << "Building quad kdtree..." << std::endl;
-        tree = make_unique<kdtree>(7,*this,KDTreeSingleIndexAdaptorParams(1000));
-        tree->buildIndex();
+        std::cout << "Building quad kdtrees..." << std::endl;
+        buildTrees();
     }
 
-    // start nanoflann interface
-    inline size_t Index::kdtree_get_point_count() const
-    {
-        return quads.size();
-    }
-    template <class BBOX> bool Index::kdtree_get_bbox(BBOX& bb) const
-    {
-        return false;
-    }
-    // end nanoflann interface
 }

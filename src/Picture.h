@@ -7,6 +7,7 @@
 
 #include "Vec2.h"
 #include "Quad.h"
+#include "IndexEighth.h"
 
 namespace ugps
 {
@@ -17,6 +18,7 @@ namespace ugps
         vector<star_t> stars;
 
         vector<star_t> nearestNeighbours(const Vec2& query, size_t n) const;
+        void calculateQuads(Oriented<IndexEighth>& orientedIndex) const;
         void calculateQuads(vector<shared_ptr<const Quad<star_t, vec2> > >& quads) const;
         vector<shared_ptr<const Quad<star_t, vec2> > > calculateQuads() const;
         void buildIndex();
@@ -82,13 +84,83 @@ namespace ugps
     template <class star_t, starToVec2Fn<star_t> vec2>
     void Picture<star_t,vec2>::calculateQuads(vector<shared_ptr<const Quad<star_t, vec2> > >& quads) const
     {
-        vector<star_t> fourNearest;
-
-        for(auto star : stars)
+#pragma omp parallel for
+        for(auto star = stars.begin(); star < stars.end(); star++)
         {
-            fourNearest = nearestNeighbours(vec2(star),4);
+            vector<star_t> fourNearest = nearestNeighbours(vec2(*star),4);
             auto sharedQuad = make_shared<const Quad<star_t, vec2> >(fourNearest[0],fourNearest[1],fourNearest[2],fourNearest[3]);
-            quads.push_back(sharedQuad);
+#pragma omp critical(addQuad)
+            {
+                quads.push_back(sharedQuad);
+            }
+        }
+    }
+
+    template <class star_t, starToVec2Fn<star_t> vec2>
+    void Picture<star_t,vec2>::calculateQuads(Oriented<IndexEighth>& orientedIndex) const
+    {
+#pragma omp parallel for
+        for(auto star = stars.begin(); star < stars.end(); star++)
+        {
+            vector<star_t> fourNearest = nearestNeighbours(vec2(*star),4);
+            auto sharedQuad = make_shared<const Quad<star_t, vec2> >(fourNearest[0],fourNearest[1],fourNearest[2],fourNearest[3]);
+            Orientation o = sharedQuad->orientation;
+            if(o == Orientation(false,false,false))
+            {
+#pragma omp critical(addQuad000)
+                {
+                    orientedIndex[o].quads.push_back(sharedQuad);
+                }
+            }
+            else if(o == Orientation(false,false,true))
+            {
+#pragma omp critical(addQuad001)
+                {
+                    orientedIndex[o].quads.push_back(sharedQuad);
+                }
+            }
+            else if(o == Orientation(false,true,false))
+            {
+#pragma omp critical(addQuad010)
+                {
+                    orientedIndex[o].quads.push_back(sharedQuad);
+                }
+            }
+            else if(o == Orientation(false,true,true))
+            {
+#pragma omp critical(addQuad011)
+                {
+                    orientedIndex[o].quads.push_back(sharedQuad);
+                }
+            }
+            else if(o == Orientation(true,false,false))
+            {
+#pragma omp critical(addQuad100)
+                {
+                    orientedIndex[o].quads.push_back(sharedQuad);
+                }
+            }
+            else if(o == Orientation(true,false,true))
+            {
+#pragma omp critical(addQuad101)
+                {
+                    orientedIndex[o].quads.push_back(sharedQuad);
+                }
+            }
+            else if(o == Orientation(true,true,false))
+            {
+#pragma omp critical(addQuad110)
+                {
+                    orientedIndex[o].quads.push_back(sharedQuad);
+                }
+            }
+            else 
+            {
+#pragma omp critical(addQuad111)
+                {
+                    orientedIndex[o].quads.push_back(sharedQuad);
+                }
+            }
         }
     }
 

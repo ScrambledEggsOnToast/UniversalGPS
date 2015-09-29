@@ -4,6 +4,7 @@
 #include "_ug.h"
 
 #include <nanoflann.hpp>
+#include <tuple>
 
 #include "Vec3.h"
 #include "Direction.h"
@@ -12,6 +13,8 @@
 #include "ProjectedStar.h"
 #include "Quad.h"
 #include "Pose.h"
+#include "IndexEighth.h"
+#include "Orientation.h"
 
 using namespace nanoflann;
 
@@ -22,18 +25,6 @@ namespace ugps
     public:
         Index(const vector<Vec3>& universe3D, const vector<Direction>& directions);
 
-        // start nanoflann interface
-        inline size_t kdtree_get_point_count() const;
-        inline num_ug kdtree_distance(const num_ug* p1, const size_t idx_p2, size_t) const;
-        inline num_ug kdtree_get_pt(const size_t idx, int dim) const;
-        template <class BBOX> bool kdtree_get_bbox(BBOX& bb) const;
-        typedef KDTreeSingleIndexAdaptor<
-                L2_Simple_Adaptor<num_ug, Index>,
-                Index,
-                7
-                > kdtree;
-        // end nanoflann interface
-
         template <class star_t, starToVec2Fn<star_t> vec2>
         Pose3 search(const Picture<star_t,vec2>& pic) const
         {
@@ -41,8 +32,31 @@ namespace ugps
         }
 
     private:
-        vector<shared_ptr<const ProjectionQuad> > quads;
-        unique_ptr<kdtree> tree;
+
+        void buildTrees() const
+        {
+#pragma omp parallel sections
+            {
+#pragma omp section
+                { orientedIndex.t000.tree->buildIndex(); }
+#pragma omp section
+                { orientedIndex.t001.tree->buildIndex(); }
+#pragma omp section
+                { orientedIndex.t010.tree->buildIndex(); }
+#pragma omp section
+                { orientedIndex.t011.tree->buildIndex(); }
+#pragma omp section
+                { orientedIndex.t100.tree->buildIndex(); }
+#pragma omp section
+                { orientedIndex.t101.tree->buildIndex(); }
+#pragma omp section
+                { orientedIndex.t110.tree->buildIndex(); }
+#pragma omp section
+                { orientedIndex.t111.tree->buildIndex(); }
+            }
+        }
+
+        Oriented<IndexEighth> orientedIndex;
 
         template<class star_t, starToVec2Fn<star_t> vec2>
         vector<shared_ptr<const ProjectionQuad> > nearestNeighbours(const Quad<star_t,vec2>& query, size_t n) const;
@@ -66,25 +80,19 @@ namespace ugps
         KNNResultSet<num_ug> resultSet(n);
         resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
 
-        num_ug queryPoint[7];
-        queryPoint[0] = query.dimension(0);
-        queryPoint[1] = query.dimension(1);
-        queryPoint[2] = query.dimension(2);
-        queryPoint[3] = query.dimension(3);
-        queryPoint[4] = query.dimension(4);
-        queryPoint[5] = query.dimension(5);
-        queryPoint[6] = query.dimension(6);
+        num_ug queryPoint[4];
+        queryPoint[0] = query.q1;
+        queryPoint[1] = query.q2;
+        queryPoint[2] = query.q3;
+        queryPoint[3] = query.q4;
 
-        tree->findNeighbors(
-                resultSet,
-                queryPoint,
-                SearchParams());
+        orientedIndex[query.orientation].tree->findNeighbors(resultSet,queryPoint,SearchParams());
 
         vector<shared_ptr<const ProjectionQuad> > returnQuads;
 
         for(auto idx : ret_indexes)
         {
-            returnQuads.push_back(quads[idx]);
+            returnQuads.push_back(orientedIndex[query.orientation].quads[idx]);
         }
 
         return returnQuads;
@@ -96,25 +104,19 @@ namespace ugps
         vector<pair<size_t,num_ug> > indices_dists;
 		RadiusResultSet<num_ug,size_t> resultSet(r,indices_dists);
 
-        num_ug queryPoint[7];
-        queryPoint[0] = query.dimension(0);
-        queryPoint[1] = query.dimension(1);
-        queryPoint[2] = query.dimension(2);
-        queryPoint[3] = query.dimension(3);
-        queryPoint[4] = query.dimension(4);
-        queryPoint[5] = query.dimension(5);
-        queryPoint[6] = query.dimension(6);
+        num_ug queryPoint[4];
+        queryPoint[0] = query.q1;
+        queryPoint[1] = query.q2;
+        queryPoint[2] = query.q3;
+        queryPoint[3] = query.q4;
 
-		tree->findNeighbors(
-                resultSet,
-                queryPoint,
-                SearchParams());
+        orientedIndex[query.orientation].tree->findNeighbors(resultSet,queryPoint,SearchParams());
         
         vector<shared_ptr<const ProjectionQuad> > returnQuads;
 
         for(auto idx_dist : indices_dists)
         {
-            returnQuads.push_back(quads[idx_dist.first]);
+            returnQuads.push_back(orientedIndex[query.orientation].quads[idx_dist.first]);
         }
         
         return returnQuads;
@@ -125,12 +127,16 @@ namespace ugps
     {
 
         vector<shared_ptr<const Pose2> > pose2s;
-        for(auto q : pictureQuads)
+#pragma omp parallel for
+        for(auto q = pictureQuads.begin(); q < pictureQuads.end(); q++)
         {
-            vector<shared_ptr<const ProjectionQuad> > qms = nearestNeighbours(*q,1);
+            vector<shared_ptr<const ProjectionQuad> > qms = nearestNeighbours(**q,1);
             for(auto qm : qms)
             {
-                pose2s.push_back(make_shared<const Pose2>(measure(qm,q)));
+#pragma omp critical(addPose2)
+                {
+                    pose2s.push_back(make_shared<const Pose2>(measure(qm,*q)));
+                }
             }
         }
 
@@ -177,14 +183,6 @@ namespace ugps
 
     }
 
-    inline num_ug Index::kdtree_distance(const num_ug* p1, const size_t idx_p2, size_t) const
-    {
-        return quads[idx_p2]->distance(p1);    
-    }
-    inline num_ug Index::kdtree_get_pt(const size_t idx, int dim) const
-    {
-        return quads[idx]->dimension(dim);
-    }
 }
 
 #endif
