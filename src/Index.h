@@ -37,24 +37,10 @@ namespace ugps
 
         void buildTrees() const
         {
-#pragma omp parallel sections
+#pragma omp parallel for
+            for(int i = 0; i < 8; i++)
             {
-#pragma omp section
-                { orientedIndex.t000.tree->buildIndex(); }
-#pragma omp section
-                { orientedIndex.t001.tree->buildIndex(); }
-#pragma omp section
-                { orientedIndex.t010.tree->buildIndex(); }
-#pragma omp section
-                { orientedIndex.t011.tree->buildIndex(); }
-#pragma omp section
-                { orientedIndex.t100.tree->buildIndex(); }
-#pragma omp section
-                { orientedIndex.t101.tree->buildIndex(); }
-#pragma omp section
-                { orientedIndex.t110.tree->buildIndex(); }
-#pragma omp section
-                { orientedIndex.t111.tree->buildIndex(); }
+                orientedIndex[i].tree->buildIndex();
             }
         }
 

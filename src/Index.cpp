@@ -19,14 +19,11 @@ namespace ugps
         std::cout << quadErrorRadius() << std::endl;
 
         std::cout << "Projecting stars in " << directions.size() << " directions..." << std::endl;
+        uniqueProjections.resize(directions.size());
 #pragma omp parallel for
-        for(auto direction = directions.begin(); direction < directions.end(); direction++)
+        for(int i = 0; i < directions.size(); i++)
         {
-            auto proj = make_unique<const Projection>(*direction, uniqueStars);
-#pragma omp critical(addUniqueProjection)
-            {
-                uniqueProjections.push_back(move(proj));
-            }
+            uniqueProjections[i] = make_unique<const Projection>(directions[i], uniqueStars);
         }
 
         std::cout << "Calculating quads for " << uniqueProjections.size() << " projections..." << std::endl;

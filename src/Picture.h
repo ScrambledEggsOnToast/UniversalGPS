@@ -84,84 +84,62 @@ namespace ugps
     template <class star_t, starToVec2Fn<star_t> vec2>
     void Picture<star_t,vec2>::calculateQuads(vector<unique_ptr<const Quad<star_t, vec2> > >& quads) const
     {
-#pragma omp parallel for
-        for(auto star = stars.begin(); star < stars.end(); star++)
+        int q = quads.size();
+
+        int i;
+        unique_ptr<const Quad<star_t, vec2> > quad;
+        vector<star_t> fourNearest;
+
+        quads.resize(quads.size()+stars.size());
+
+#pragma omp parallel for private(quad,i,fourNearest)
+        for(int s = 0; s < stars.size(); s++)
         {
-            vector<star_t> fourNearest = nearestNeighbours(vec2(*star),4);
-            auto quad = make_unique<const Quad<star_t, vec2> >(fourNearest[0],fourNearest[1],fourNearest[2],fourNearest[3]);
-#pragma omp critical(addQuad)
+            fourNearest = nearestNeighbours(vec2(stars[s]),4);
+            quad = make_unique<const Quad<star_t, vec2> >(fourNearest[0],fourNearest[1],fourNearest[2],fourNearest[3]);
+#pragma omp atomic capture
             {
-                quads.push_back(move(quad));
+                i = q;
+                q++;
             }
+            quads[i] = move(quad);
         }
     }
 
     template <class star_t, starToVec2Fn<star_t> vec2>
     void Picture<star_t,vec2>::calculateQuads(Oriented<IndexEighth>& orientedIndex) const
     {
-#pragma omp parallel for
-        for(auto star = stars.begin(); star < stars.end(); star++)
+        Oriented<int> orientedI;
+        for(int o = 0; o < 8; o++)
         {
-            vector<star_t> fourNearest = nearestNeighbours(vec2(*star),4);
-            auto quad = make_unique<const Quad<star_t, vec2> >(fourNearest[0],fourNearest[1],fourNearest[2],fourNearest[3]);
-            Orientation o = quad->orientation;
-            if(o == Orientation(false,false,false))
-            {
-#pragma omp critical(addQuad000)
-                {
-                    orientedIndex[o].quads.push_back(move(quad));
-                }
-            }
-            else if(o == Orientation(false,false,true))
-            {
-#pragma omp critical(addQuad001)
-                {
-                    orientedIndex[o].quads.push_back(move(quad));
-                }
-            }
-            else if(o == Orientation(false,true,false))
-            {
-#pragma omp critical(addQuad010)
-                {
-                    orientedIndex[o].quads.push_back(move(quad));
-                }
-            }
-            else if(o == Orientation(false,true,true))
-            {
-#pragma omp critical(addQuad011)
-                {
-                    orientedIndex[o].quads.push_back(move(quad));
-                }
-            }
-            else if(o == Orientation(true,false,false))
-            {
-#pragma omp critical(addQuad100)
-                {
-                    orientedIndex[o].quads.push_back(move(quad));
-                }
-            }
-            else if(o == Orientation(true,false,true))
-            {
-#pragma omp critical(addQuad101)
-                {
-                    orientedIndex[o].quads.push_back(move(quad));
-                }
-            }
-            else if(o == Orientation(true,true,false))
-            {
-#pragma omp critical(addQuad110)
-                {
-                    orientedIndex[o].quads.push_back(move(quad));
-                }
-            }
-            else 
-            {
-#pragma omp critical(addQuad111)
-                {
-                    orientedIndex[o].quads.push_back(move(quad));
-                }
-            }
+            orientedI[o] = orientedIndex[o].quads.size();
+            orientedIndex[o].quads.resize(orientedIndex[o].quads.size()+stars.size());
         }
+
+        int i;
+        unique_ptr<const Quad<star_t, vec2> > quad;
+        vector<star_t> fourNearest;
+#pragma omp parallel for private(quad, i, fourNearest)
+        for(int s = 0; s < stars.size(); s++)
+        {
+            fourNearest = nearestNeighbours(vec2(stars[s]),4);
+            quad = make_unique<const Quad<star_t, vec2> >(fourNearest[0],fourNearest[1],fourNearest[2],fourNearest[3]);
+            Orientation o = quad->orientation;
+#pragma omp atomic capture
+            {
+                i = orientedI[o];
+                orientedI[o]++;
+            }
+            orientedIndex[o].quads[i] = move(quad);
+        }
+        
+        int t;
+        for(int o = 0; o < 8; o++)
+        {
+            orientedIndex[o].quads.resize(orientedI[o]);
+        }
+        
+
     }
 
     template <class star_t, starToVec2Fn<star_t> vec2>
