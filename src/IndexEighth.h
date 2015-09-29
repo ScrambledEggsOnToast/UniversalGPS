@@ -23,7 +23,7 @@ namespace ugps
                 > kdtree;
 
         unique_ptr<kdtree> tree;
-        vector<shared_ptr<const ProjectionQuad> > quads;
+        vector<unique_ptr<const ProjectionQuad> > quads;
 
         // start nanoflann interface
         inline size_t kdtree_get_point_count() const

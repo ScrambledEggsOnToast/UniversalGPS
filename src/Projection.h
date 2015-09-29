@@ -14,11 +14,15 @@
 namespace ugps
 {
 
-    class Projection : public Picture<shared_ptr<const ProjectedStar>, projectionVec2>
+    Vec2 projectionVec2(const ProjectedStar* const& proj);
+
+    class Projection : public Picture<ProjectedStar*, projectionQuadVec2>
     {
     public:
-        Projection(const Direction& dir, const vector<shared_ptr<const Vec3> >& stars3D);
-        shared_ptr<Direction> direction;
+        Projection(const Direction& dir, const vector<unique_ptr<const Vec3> >& stars3D);
+        unique_ptr<Direction> direction;
+    private:
+        vector<unique_ptr<ProjectedStar> > uniqueStars;
     };
 }
 

@@ -15,11 +15,10 @@ using namespace ugps;
 int main(int argc, char *argv[]) {
 
     const size_t numStars = 10;
-    const size_t numDirs = 100000;
+    const size_t numDirs = 1000;
     const num_ug universeRadius = 1;
     
     std::vector<Vec3> stars;
-    vector<shared_ptr<const Vec3> > starPtrs;
     
     {
         std::random_device rd;
@@ -32,7 +31,6 @@ int main(int argc, char *argv[]) {
             star.y = dist(mt);
             star.z = dist(mt);
             stars.push_back(star);
-            starPtrs.push_back(make_shared<const Vec3>(star));
         }
     }
 
@@ -40,7 +38,7 @@ int main(int argc, char *argv[]) {
 
     Index index(stars, dirs);
 
-    int tests = 100000;
+    int tests = 10;
 
     for(int i = 0; i<tests; i++)
     {
@@ -49,7 +47,7 @@ int main(int argc, char *argv[]) {
         Direction spacecraftDir(theta,theta);
         Pose3 spacecraftPose(-1000*spacecraftDir.unit(), spacecraftDir, theta);
 
-        Image img(spacecraftPose, starPtrs);
+        Image img(spacecraftPose, stars);
         
         Pose3 pose = index.search(img);
 

@@ -17,7 +17,7 @@ namespace ugps
     {
     public:
         Image(const vector<Direction>& stars);
-        Image(const Pose3& pose3, const vector<shared_ptr<const Vec3> >& stars3D);
+        Image(const Pose3& pose3, const vector<Vec3>& stars3D);
     };
 
 }

@@ -4,8 +4,8 @@
 namespace ugps
 {
     ProjectedStar::ProjectedStar(
-            const shared_ptr<const Vec3>& pos3D,
-            const shared_ptr<const Direction>& dir
+            const Vec3* pos3D,
+            const Direction* dir
             ) : pos3D(pos3D), dir(dir)
     {
         num_ug u = cos(dir->phi)*cos(dir->theta)*pos3D->x 

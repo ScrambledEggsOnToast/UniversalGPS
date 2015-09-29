@@ -29,8 +29,6 @@ namespace ugps
         num_ug dimension(int dim) const;
         num_ug distance(const num_ug* p1) const;
 
-        Pose2 measure(const shared_ptr<const Quad>& q) const;
-
         num_ug q1, q2, q3, q4;
         Orientation orientation;
         star_t a, b, c, d;
@@ -69,29 +67,29 @@ namespace ugps
         orientation.o3 = orient(dd,db);
     }    
 
-    Vec2 projectionVec2(const shared_ptr<const ProjectedStar>& proj);
+    Vec2 projectionQuadVec2(ProjectedStar* const& proj);
 
-    typedef Quad<shared_ptr<const ProjectedStar>, projectionVec2> ProjectionQuad;
+    typedef Quad<ProjectedStar*, projectionQuadVec2> ProjectionQuad;
 
     template<class star_t, starToVec2Fn<star_t> vec2>
-    Pose2 measure(const shared_ptr<const ProjectionQuad>& qP, const shared_ptr<const Quad<star_t,vec2> >& qI)
+    Pose2 measure(const ProjectionQuad& qP, const Quad<star_t,vec2>& qI)
     {
         num_ug dI, dP, aI, aP, scale, rot;
         Vec2 pos2;
         Vec3 pos3;
 
-        dI = (vec2(qI->a) - vec2(qI->b)).length();
-        dP = (qP->a->pos - qP->b->pos).length();
+        dI = (vec2(qI.a) - vec2(qI.b)).length();
+        dP = (qP.a->pos - qP.b->pos).length();
         scale = dP / dI;
 
-        aI = (vec2(qI->a) - vec2(qI->b)).angle();
-        aP = (qP->a->pos - qP->b->pos).angle();
+        aI = (vec2(qI.a) - vec2(qI.b)).angle();
+        aP = (qP.a->pos - qP.b->pos).angle();
         rot = aP - aI;
 
-        pos2 = qP->a->pos - vec2(qI->a).rotate(rot)/scale;
+        pos2 = qP.a->pos - vec2(qI.a).rotate(rot)/scale;
 
-        num_ug th = qP->a->dir->theta;
-        num_ug ph = qP->a->dir->phi;
+        num_ug th = qP.a->dir->theta;
+        num_ug ph = qP.a->dir->phi;
 
         //Start first order direction correction
         arma::Mat<num_ug> Bth(3,3);
@@ -137,19 +135,19 @@ namespace ugps
         Cph(2,1) = cos(ph)*cos(th)*sin(th);
 
         num_ug dq1,dq2,dq3,dq4;
-        dq1 = qI->q1-qP->q1;
-        dq2 = qI->q2-qP->q2;
-        dq3 = qI->q3-qP->q3;
-        dq4 = qI->q4-qP->q4;
+        dq1 = qI.q1-qP.q1;
+        dq2 = qI.q2-qP.q2;
+        dq3 = qI.q3-qP.q3;
+        dq4 = qI.q4-qP.q4;
 
-        arma::Col<num_ug> dqs = {dq1/qP->q1,dq2/qP->q2,dq3/qP->q3,dq4/qP->q4};
+        arma::Col<num_ug> dqs = {dq1/qP.q1,dq2/qP.q2,dq3/qP.q3,dq4/qP.q4};
         dqs *= dP*dP;
 
         arma::Mat<num_ug> M(4,2);
 
-        Vec3 ba = *(qP->b->pos3D) - *(qP->a->pos3D);
-        Vec3 ca = *(qP->c->pos3D) - *(qP->a->pos3D);
-        Vec3 da = *(qP->d->pos3D) - *(qP->a->pos3D);
+        Vec3 ba = *(qP.b->pos3D) - *(qP.a->pos3D);
+        Vec3 ca = *(qP.c->pos3D) - *(qP.a->pos3D);
+        Vec3 da = *(qP.d->pos3D) - *(qP.a->pos3D);
 
         M(0,0) = ((ca.row()*Bth+ba.row()*Cth)*ba.col()).eval()[0];
         M(0,1) = ((ca.row()*Bph+ba.row()*Cph)*ba.col()).eval()[0];

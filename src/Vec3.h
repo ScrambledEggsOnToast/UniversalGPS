@@ -3,7 +3,6 @@
 #define VEC3_H
 #include "_ug.h"
 
-#include <tuple>
 #include <armadillo>
 
 namespace ugps
@@ -22,7 +21,7 @@ namespace ugps
         Vec3& operator/=(const Vec3& v) { x /= v.x; y /= v.y; z /= v.z; return *this; }
 
         friend bool operator==(const Vec3& L, const Vec3& R)
-            { return tie(L.x, L.y, L.z) == tie(R.x, R.y, R.z); }
+            { return L.x==R.x && L.y==R.y && L.z==R.z; }
         friend bool operator!=(const Vec3& L, const Vec3& R) { return !(L==R); }
 
         Vec3 operator-() const { return Vec3(-x,-y,-z); }

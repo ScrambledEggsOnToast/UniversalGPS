@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <memory>
+#include <utility>
 
 namespace ugps {
     typedef double num_ug;

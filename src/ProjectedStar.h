@@ -13,13 +13,13 @@ namespace ugps
     {
     public:
         ProjectedStar(
-                const shared_ptr<const Vec3>& pos3D,
-                const shared_ptr<const Direction>& dir
+                const Vec3* pos3D,
+                const Direction* dir
                 );
 
         Vec2 pos;
-        shared_ptr<const Vec3> pos3D;
-        shared_ptr<const Direction> dir;
+        const Vec3* pos3D;
+        const Direction* dir;
 
     };
 }

@@ -5,5 +5,5 @@ using namespace arma;
 
 namespace ugps
 {
-    Vec2 projectionVec2(const shared_ptr<const ProjectedStar>& proj) { return proj->pos; }
+    Vec2 projectionQuadVec2(ProjectedStar* const& proj) { return proj->pos; }
 }

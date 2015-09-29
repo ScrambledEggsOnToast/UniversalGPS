@@ -32,6 +32,8 @@ namespace ugps
         }
 
     private:
+        
+        num_ug quadErrorRadius() const;
 
         void buildTrees() const
         {
@@ -59,21 +61,21 @@ namespace ugps
         Oriented<IndexEighth> orientedIndex;
 
         template<class star_t, starToVec2Fn<star_t> vec2>
-        vector<shared_ptr<const ProjectionQuad> > nearestNeighbours(const Quad<star_t,vec2>& query, size_t n) const;
+        vector<const ProjectionQuad*> nearestNeighbours(const Quad<star_t,vec2>& query, size_t n) const;
 
         template<class star_t, starToVec2Fn<star_t> vec2>
-        vector<shared_ptr<const ProjectionQuad> > radiusSearch(const Quad<star_t,vec2>& query, const num_ug& r) const;
+        vector<const ProjectionQuad*> radiusSearch(const Quad<star_t,vec2>& query, const num_ug& r) const;
         
         template<class star_t, starToVec2Fn<star_t> vec2>
-        Pose3 searchQuads(const vector<shared_ptr<const Quad<star_t, vec2> > >& pictureQuads) const;
+        Pose3 searchQuads(const vector<unique_ptr<const Quad<star_t, vec2> > >& pictureQuads) const;
 
-        vector<shared_ptr<const Vec3> > sharedStars;
-        vector<shared_ptr<const Projection> > sharedProjections;
+        vector<unique_ptr<const Vec3> > uniqueStars;
+        vector<unique_ptr<const Projection> > uniqueProjections;
 
     };
     
     template<class star_t, starToVec2Fn<star_t> vec2>
-    vector<shared_ptr<const ProjectionQuad> > Index::nearestNeighbours(const Quad<star_t, vec2>& query, size_t n) const
+    vector<const ProjectionQuad*> Index::nearestNeighbours(const Quad<star_t, vec2>& query, size_t n) const
     {
         vector<size_t> ret_indexes(n);
         vector<num_ug> out_dists_sqr(n);
@@ -88,18 +90,18 @@ namespace ugps
 
         orientedIndex[query.orientation].tree->findNeighbors(resultSet,queryPoint,SearchParams());
 
-        vector<shared_ptr<const ProjectionQuad> > returnQuads;
+        vector<const ProjectionQuad*> returnQuads;
 
         for(auto idx : ret_indexes)
         {
-            returnQuads.push_back(orientedIndex[query.orientation].quads[idx]);
+            returnQuads.push_back(orientedIndex[query.orientation].quads[idx].get());
         }
 
         return returnQuads;
     }
 
     template<class star_t, starToVec2Fn<star_t> vec2>
-    vector<shared_ptr<const ProjectionQuad> > Index::radiusSearch(const Quad<star_t,vec2>& query, const num_ug& r) const
+    vector<const ProjectionQuad*> Index::radiusSearch(const Quad<star_t,vec2>& query, const num_ug& r) const
     {
         vector<pair<size_t,num_ug> > indices_dists;
 		RadiusResultSet<num_ug,size_t> resultSet(r,indices_dists);
@@ -112,36 +114,36 @@ namespace ugps
 
         orientedIndex[query.orientation].tree->findNeighbors(resultSet,queryPoint,SearchParams());
         
-        vector<shared_ptr<const ProjectionQuad> > returnQuads;
+        vector<const ProjectionQuad*> returnQuads;
 
         for(auto idx_dist : indices_dists)
         {
-            returnQuads.push_back(orientedIndex[query.orientation].quads[idx_dist.first]);
+            returnQuads.push_back(orientedIndex[query.orientation].quads[idx_dist.first].get());
         }
         
         return returnQuads;
     }
 
     template<class star_t, starToVec2Fn<star_t> vec2>
-    Pose3 Index::searchQuads(const vector<shared_ptr<const Quad<star_t,vec2> > >& pictureQuads) const
+    Pose3 Index::searchQuads(const vector<unique_ptr<const Quad<star_t,vec2> > >& pictureQuads) const
     {
 
-        vector<shared_ptr<const Pose2> > pose2s;
+        vector<unique_ptr<const Pose2> > pose2s;
 #pragma omp parallel for
         for(auto q = pictureQuads.begin(); q < pictureQuads.end(); q++)
         {
-            vector<shared_ptr<const ProjectionQuad> > qms = nearestNeighbours(**q,1);
+            vector<const ProjectionQuad*> qms = nearestNeighbours(**q,1);//radiusSearch(**q,0.05);
             for(auto qm : qms)
             {
 #pragma omp critical(addPose2)
                 {
-                    pose2s.push_back(make_shared<const Pose2>(measure(qm,*q)));
+                    pose2s.push_back(make_unique<const Pose2>(measure(*qm,**q)));
                 }
             }
         }
 
-        num_ug filterRadius = sqrt(4*M_PI/(num_ug)sharedProjections.size());
-        vector<shared_ptr<const Pose2> > pose2sfiltered;
+        num_ug filterRadius = sqrt(4*M_PI/(num_ug)uniqueProjections.size());
+        vector<const Pose2*> pose2sfiltered;
 
         for(auto pose2 = pose2s.begin(); pose2 < pose2s.end(); pose2++)
         {
@@ -150,7 +152,7 @@ namespace ugps
                 if (pose2 == pose2n) continue;
                 if (dist((*pose2)->dir,(*pose2n)->dir)<filterRadius)
                 {
-                    pose2sfiltered.push_back(*pose2);
+                    pose2sfiltered.push_back(pose2->get());
                     //std::cout << (*pose2)->dir.theta << std::endl;
                     break;
                 }
@@ -182,6 +184,8 @@ namespace ugps
         return aPose2.pose3();
 
     }
+
+    num_ug meanDist(const num_ug& D, const num_ug& N, const num_ug& k);
 
 }
 

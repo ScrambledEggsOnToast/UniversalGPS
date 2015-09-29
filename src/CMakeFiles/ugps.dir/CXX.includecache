@@ -39,6 +39,8 @@ Index.h
 /home/joshkirklin/ugps-cpp/src/Index.h
 cstdlib
 -
+cmath
+-
 
 /home/joshkirklin/ugps-cpp/src/Index.h
 _ug.h
@@ -167,8 +169,6 @@ armadillo
 /home/joshkirklin/ugps-cpp/src/Vec2.h
 _ug.h
 /home/joshkirklin/ugps-cpp/src/_ug.h
-tuple
--
 armadillo
 -
 
@@ -179,8 +179,6 @@ Vec3.h
 /home/joshkirklin/ugps-cpp/src/Vec3.h
 _ug.h
 /home/joshkirklin/ugps-cpp/src/_ug.h
-tuple
--
 armadillo
 -
 
@@ -188,6 +186,8 @@ armadillo
 vector
 -
 memory
+-
+utility
 -
 
 /home/joshkirklin/ugps-cpp/src/appinfo.h

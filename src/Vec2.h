@@ -3,7 +3,6 @@
 #define VEC2_H
 #include "_ug.h"
 
-#include <tuple>
 #include <armadillo>
 
 namespace ugps
@@ -22,7 +21,7 @@ namespace ugps
         Vec2& operator/=(const Vec2& v) { x /= v.x; y /= v.y; return *this; }
 
         friend bool operator==(const Vec2& L, const Vec2& R)
-            { return tie(L.x, L.y) == tie(R.x, R.y); }
+            { return L.x==R.x && L.y==R.y; }
         friend bool operator!=(const Vec2& L, const Vec2& R) { return !(L==R); }
 
         Vec2 operator-() const { return Vec2(-x,-y); }
