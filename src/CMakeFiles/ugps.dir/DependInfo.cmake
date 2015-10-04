@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/joshkirklin/ugps-cpp/src/Image.cpp" "/home/joshkirklin/ugps-cpp/src/CMakeFiles/ugps.dir/Image.cpp.o"
   "/home/joshkirklin/ugps-cpp/src/Index.cpp" "/home/joshkirklin/ugps-cpp/src/CMakeFiles/ugps.dir/Index.cpp.o"
   "/home/joshkirklin/ugps-cpp/src/IndexEighth.cpp" "/home/joshkirklin/ugps-cpp/src/CMakeFiles/ugps.dir/IndexEighth.cpp.o"
+  "/home/joshkirklin/ugps-cpp/src/KdTreeBig.cpp" "/home/joshkirklin/ugps-cpp/src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o"
   "/home/joshkirklin/ugps-cpp/src/Orientation.cpp" "/home/joshkirklin/ugps-cpp/src/CMakeFiles/ugps.dir/Orientation.cpp.o"
   "/home/joshkirklin/ugps-cpp/src/ProjectedStar.cpp" "/home/joshkirklin/ugps-cpp/src/CMakeFiles/ugps.dir/ProjectedStar.cpp.o"
   "/home/joshkirklin/ugps-cpp/src/Projection.cpp" "/home/joshkirklin/ugps-cpp/src/CMakeFiles/ugps.dir/Projection.cpp.o"

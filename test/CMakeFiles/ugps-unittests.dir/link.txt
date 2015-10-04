@@ -1,1 +1,1 @@
-/usr/bin/c++   -g   CMakeFiles/ugps-unittests.dir/sanity_check.cc.o  -o ../bin/ugps-unittests -rdynamic ../lib/libgtest.a ../lib/libgtest_main.a ../lib/libgmock.a ../lib/libgmock_main.a ../lib/libgtest.a -lpthread 
+/usr/bin/c++      CMakeFiles/ugps-unittests.dir/sanity_check.cc.o  -o ../bin/ugps-unittests -rdynamic ../lib/libgtest.a ../lib/libgtest_main.a ../lib/libgmock.a ../lib/libgmock_main.a ../lib/libgtest.a -lpthread 

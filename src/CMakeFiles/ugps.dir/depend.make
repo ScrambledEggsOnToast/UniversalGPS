@@ -47,6 +47,10 @@ src/CMakeFiles/ugps.dir/IndexEighth.cpp.o: src/Vec3.h
 src/CMakeFiles/ugps.dir/IndexEighth.cpp.o: src/_ug.h
 src/CMakeFiles/ugps.dir/IndexEighth.cpp.o: include/nanoflann.hpp
 
+src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o: src/KdTreeBig.cpp
+src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o: src/KdTreeBig.h
+src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o: src/_ug.h
+
 src/CMakeFiles/ugps.dir/Orientation.cpp.o: src/Direction.h
 src/CMakeFiles/ugps.dir/Orientation.cpp.o: src/IndexEighth.h
 src/CMakeFiles/ugps.dir/Orientation.cpp.o: src/Orientation.cpp
@@ -102,6 +106,7 @@ src/CMakeFiles/ugps.dir/main.cc.o: src/Direction.h
 src/CMakeFiles/ugps.dir/main.cc.o: src/Image.h
 src/CMakeFiles/ugps.dir/main.cc.o: src/Index.h
 src/CMakeFiles/ugps.dir/main.cc.o: src/IndexEighth.h
+src/CMakeFiles/ugps.dir/main.cc.o: src/KdTreeBig.h
 src/CMakeFiles/ugps.dir/main.cc.o: src/Orientation.h
 src/CMakeFiles/ugps.dir/main.cc.o: src/Picture.h
 src/CMakeFiles/ugps.dir/main.cc.o: src/Pose.h

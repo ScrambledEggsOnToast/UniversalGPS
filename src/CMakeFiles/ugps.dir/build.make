@@ -153,9 +153,33 @@ src/CMakeFiles/ugps.dir/Direction.cpp.o.provides: src/CMakeFiles/ugps.dir/Direct
 src/CMakeFiles/ugps.dir/Direction.cpp.o.provides.build: src/CMakeFiles/ugps.dir/Direction.cpp.o
 
 
+src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o: src/CMakeFiles/ugps.dir/flags.make
+src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o: src/KdTreeBig.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o"
+	cd /home/joshkirklin/ugps-cpp/src && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/ugps.dir/KdTreeBig.cpp.o -c /home/joshkirklin/ugps-cpp/src/KdTreeBig.cpp
+
+src/CMakeFiles/ugps.dir/KdTreeBig.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ugps.dir/KdTreeBig.cpp.i"
+	cd /home/joshkirklin/ugps-cpp/src && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/joshkirklin/ugps-cpp/src/KdTreeBig.cpp > CMakeFiles/ugps.dir/KdTreeBig.cpp.i
+
+src/CMakeFiles/ugps.dir/KdTreeBig.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ugps.dir/KdTreeBig.cpp.s"
+	cd /home/joshkirklin/ugps-cpp/src && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/joshkirklin/ugps-cpp/src/KdTreeBig.cpp -o CMakeFiles/ugps.dir/KdTreeBig.cpp.s
+
+src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o.requires:
+
+.PHONY : src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o.requires
+
+src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o.provides: src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o.requires
+	$(MAKE) -f src/CMakeFiles/ugps.dir/build.make src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o.provides.build
+.PHONY : src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o.provides
+
+src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o.provides.build: src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o
+
+
 src/CMakeFiles/ugps.dir/Quad.cpp.o: src/CMakeFiles/ugps.dir/flags.make
 src/CMakeFiles/ugps.dir/Quad.cpp.o: src/Quad.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object src/CMakeFiles/ugps.dir/Quad.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object src/CMakeFiles/ugps.dir/Quad.cpp.o"
 	cd /home/joshkirklin/ugps-cpp/src && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/ugps.dir/Quad.cpp.o -c /home/joshkirklin/ugps-cpp/src/Quad.cpp
 
 src/CMakeFiles/ugps.dir/Quad.cpp.i: cmake_force
@@ -179,7 +203,7 @@ src/CMakeFiles/ugps.dir/Quad.cpp.o.provides.build: src/CMakeFiles/ugps.dir/Quad.
 
 src/CMakeFiles/ugps.dir/Vec2.cpp.o: src/CMakeFiles/ugps.dir/flags.make
 src/CMakeFiles/ugps.dir/Vec2.cpp.o: src/Vec2.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object src/CMakeFiles/ugps.dir/Vec2.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object src/CMakeFiles/ugps.dir/Vec2.cpp.o"
 	cd /home/joshkirklin/ugps-cpp/src && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/ugps.dir/Vec2.cpp.o -c /home/joshkirklin/ugps-cpp/src/Vec2.cpp
 
 src/CMakeFiles/ugps.dir/Vec2.cpp.i: cmake_force
@@ -203,7 +227,7 @@ src/CMakeFiles/ugps.dir/Vec2.cpp.o.provides.build: src/CMakeFiles/ugps.dir/Vec2.
 
 src/CMakeFiles/ugps.dir/Image.cpp.o: src/CMakeFiles/ugps.dir/flags.make
 src/CMakeFiles/ugps.dir/Image.cpp.o: src/Image.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object src/CMakeFiles/ugps.dir/Image.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object src/CMakeFiles/ugps.dir/Image.cpp.o"
 	cd /home/joshkirklin/ugps-cpp/src && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/ugps.dir/Image.cpp.o -c /home/joshkirklin/ugps-cpp/src/Image.cpp
 
 src/CMakeFiles/ugps.dir/Image.cpp.i: cmake_force
@@ -227,7 +251,7 @@ src/CMakeFiles/ugps.dir/Image.cpp.o.provides.build: src/CMakeFiles/ugps.dir/Imag
 
 src/CMakeFiles/ugps.dir/Vec3.cpp.o: src/CMakeFiles/ugps.dir/flags.make
 src/CMakeFiles/ugps.dir/Vec3.cpp.o: src/Vec3.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object src/CMakeFiles/ugps.dir/Vec3.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object src/CMakeFiles/ugps.dir/Vec3.cpp.o"
 	cd /home/joshkirklin/ugps-cpp/src && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/ugps.dir/Vec3.cpp.o -c /home/joshkirklin/ugps-cpp/src/Vec3.cpp
 
 src/CMakeFiles/ugps.dir/Vec3.cpp.i: cmake_force
@@ -251,7 +275,7 @@ src/CMakeFiles/ugps.dir/Vec3.cpp.o.provides.build: src/CMakeFiles/ugps.dir/Vec3.
 
 src/CMakeFiles/ugps.dir/ProjectedStar.cpp.o: src/CMakeFiles/ugps.dir/flags.make
 src/CMakeFiles/ugps.dir/ProjectedStar.cpp.o: src/ProjectedStar.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object src/CMakeFiles/ugps.dir/ProjectedStar.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object src/CMakeFiles/ugps.dir/ProjectedStar.cpp.o"
 	cd /home/joshkirklin/ugps-cpp/src && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/ugps.dir/ProjectedStar.cpp.o -c /home/joshkirklin/ugps-cpp/src/ProjectedStar.cpp
 
 src/CMakeFiles/ugps.dir/ProjectedStar.cpp.i: cmake_force
@@ -275,7 +299,7 @@ src/CMakeFiles/ugps.dir/ProjectedStar.cpp.o.provides.build: src/CMakeFiles/ugps.
 
 src/CMakeFiles/ugps.dir/Index.cpp.o: src/CMakeFiles/ugps.dir/flags.make
 src/CMakeFiles/ugps.dir/Index.cpp.o: src/Index.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object src/CMakeFiles/ugps.dir/Index.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object src/CMakeFiles/ugps.dir/Index.cpp.o"
 	cd /home/joshkirklin/ugps-cpp/src && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/ugps.dir/Index.cpp.o -c /home/joshkirklin/ugps-cpp/src/Index.cpp
 
 src/CMakeFiles/ugps.dir/Index.cpp.i: cmake_force
@@ -299,7 +323,7 @@ src/CMakeFiles/ugps.dir/Index.cpp.o.provides.build: src/CMakeFiles/ugps.dir/Inde
 
 src/CMakeFiles/ugps.dir/main.cc.o: src/CMakeFiles/ugps.dir/flags.make
 src/CMakeFiles/ugps.dir/main.cc.o: src/main.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object src/CMakeFiles/ugps.dir/main.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object src/CMakeFiles/ugps.dir/main.cc.o"
 	cd /home/joshkirklin/ugps-cpp/src && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/ugps.dir/main.cc.o -c /home/joshkirklin/ugps-cpp/src/main.cc
 
 src/CMakeFiles/ugps.dir/main.cc.i: cmake_force
@@ -327,6 +351,7 @@ ugps_OBJECTS = \
 "CMakeFiles/ugps.dir/Orientation.cpp.o" \
 "CMakeFiles/ugps.dir/IndexEighth.cpp.o" \
 "CMakeFiles/ugps.dir/Direction.cpp.o" \
+"CMakeFiles/ugps.dir/KdTreeBig.cpp.o" \
 "CMakeFiles/ugps.dir/Quad.cpp.o" \
 "CMakeFiles/ugps.dir/Vec2.cpp.o" \
 "CMakeFiles/ugps.dir/Image.cpp.o" \
@@ -342,6 +367,7 @@ bin/ugps-1.0: src/CMakeFiles/ugps.dir/Projection.cpp.o
 bin/ugps-1.0: src/CMakeFiles/ugps.dir/Orientation.cpp.o
 bin/ugps-1.0: src/CMakeFiles/ugps.dir/IndexEighth.cpp.o
 bin/ugps-1.0: src/CMakeFiles/ugps.dir/Direction.cpp.o
+bin/ugps-1.0: src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o
 bin/ugps-1.0: src/CMakeFiles/ugps.dir/Quad.cpp.o
 bin/ugps-1.0: src/CMakeFiles/ugps.dir/Vec2.cpp.o
 bin/ugps-1.0: src/CMakeFiles/ugps.dir/Image.cpp.o
@@ -351,7 +377,7 @@ bin/ugps-1.0: src/CMakeFiles/ugps.dir/Index.cpp.o
 bin/ugps-1.0: src/CMakeFiles/ugps.dir/main.cc.o
 bin/ugps-1.0: src/CMakeFiles/ugps.dir/build.make
 bin/ugps-1.0: src/CMakeFiles/ugps.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable ../bin/ugps"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/joshkirklin/ugps-cpp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking CXX executable ../bin/ugps"
 	cd /home/joshkirklin/ugps-cpp/src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ugps.dir/link.txt --verbose=$(VERBOSE)
 	cd /home/joshkirklin/ugps-cpp/src && $(CMAKE_COMMAND) -E cmake_symlink_executable ../bin/ugps-1.0 ../bin/ugps
 
@@ -367,6 +393,7 @@ src/CMakeFiles/ugps.dir/requires: src/CMakeFiles/ugps.dir/Projection.cpp.o.requi
 src/CMakeFiles/ugps.dir/requires: src/CMakeFiles/ugps.dir/Orientation.cpp.o.requires
 src/CMakeFiles/ugps.dir/requires: src/CMakeFiles/ugps.dir/IndexEighth.cpp.o.requires
 src/CMakeFiles/ugps.dir/requires: src/CMakeFiles/ugps.dir/Direction.cpp.o.requires
+src/CMakeFiles/ugps.dir/requires: src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o.requires
 src/CMakeFiles/ugps.dir/requires: src/CMakeFiles/ugps.dir/Quad.cpp.o.requires
 src/CMakeFiles/ugps.dir/requires: src/CMakeFiles/ugps.dir/Vec2.cpp.o.requires
 src/CMakeFiles/ugps.dir/requires: src/CMakeFiles/ugps.dir/Image.cpp.o.requires

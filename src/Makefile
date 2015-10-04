@@ -277,6 +277,33 @@ IndexEighth.cpp.s:
 	cd /home/joshkirklin/ugps-cpp && $(MAKE) -f src/CMakeFiles/ugps.dir/build.make src/CMakeFiles/ugps.dir/IndexEighth.cpp.s
 .PHONY : IndexEighth.cpp.s
 
+KdTreeBig.o: KdTreeBig.cpp.o
+
+.PHONY : KdTreeBig.o
+
+# target to build an object file
+KdTreeBig.cpp.o:
+	cd /home/joshkirklin/ugps-cpp && $(MAKE) -f src/CMakeFiles/ugps.dir/build.make src/CMakeFiles/ugps.dir/KdTreeBig.cpp.o
+.PHONY : KdTreeBig.cpp.o
+
+KdTreeBig.i: KdTreeBig.cpp.i
+
+.PHONY : KdTreeBig.i
+
+# target to preprocess a source file
+KdTreeBig.cpp.i:
+	cd /home/joshkirklin/ugps-cpp && $(MAKE) -f src/CMakeFiles/ugps.dir/build.make src/CMakeFiles/ugps.dir/KdTreeBig.cpp.i
+.PHONY : KdTreeBig.cpp.i
+
+KdTreeBig.s: KdTreeBig.cpp.s
+
+.PHONY : KdTreeBig.s
+
+# target to generate assembly for a file
+KdTreeBig.cpp.s:
+	cd /home/joshkirklin/ugps-cpp && $(MAKE) -f src/CMakeFiles/ugps.dir/build.make src/CMakeFiles/ugps.dir/KdTreeBig.cpp.s
+.PHONY : KdTreeBig.cpp.s
+
 Orientation.o: Orientation.cpp.o
 
 .PHONY : Orientation.o
@@ -491,6 +518,9 @@ help:
 	@echo "... IndexEighth.o"
 	@echo "... IndexEighth.i"
 	@echo "... IndexEighth.s"
+	@echo "... KdTreeBig.o"
+	@echo "... KdTreeBig.i"
+	@echo "... KdTreeBig.s"
 	@echo "... Orientation.o"
 	@echo "... Orientation.i"
 	@echo "... Orientation.s"

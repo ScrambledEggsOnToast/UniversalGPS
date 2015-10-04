@@ -48,6 +48,15 @@ namespace ugps
         void rotateX(num_ug angle);
         void rotateY(num_ug angle);
         void rotateZ(num_ug angle);
+
+        friend ostream& operator<<(ostream&, const Vec3&);
+        friend istream& operator>>(istream&, Vec3&);
+
+        template<typename Archive>
+        void serialize(Archive& ar, const unsigned version)
+        {
+            ar & x & y & z;
+        }
     };
 
 }

@@ -31,7 +31,7 @@ namespace ugps
         typedef nanoflann::KDTreeSingleIndexAdaptor<
                 nanoflann::L2_Simple_Adaptor<num_ug, Picture>,
                 Picture,
-                7
+                2
                 > kdtree;
         // end nanoflann interface
     protected:

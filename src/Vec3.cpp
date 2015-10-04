@@ -49,4 +49,22 @@ namespace ugps
                 sin(angle)*x+cos(angle)*y,
                 z);
     }
+    
+    ostream& operator<<(ostream& ost, const Vec3& v) 
+    {
+        ost << v.x << "," << v.y << "," << v.z;
+        return ost;
+    }
+
+    istream& operator>>(istream& is, Vec3& v)
+    {
+        std::string line;
+        char comma1, comma2;
+        std::getline(is, line);
+        std::istringstream iss(line);
+
+        iss >> v.x >> comma1 >> v.y >> comma2 >> v.z;
+        return is;
+    }
+
 }

@@ -73,6 +73,7 @@ FILE (GLOB src/Image.cpp)
 FILE (GLOB src/Orientation.cpp)
 FILE (GLOB src/Projection.cpp)
 FILE (GLOB src/Quad.cpp)
+FILE (GLOB src/KdTreeBig.cpp)
 FILE (GLOB src/Index.cpp)
 
 # Add thirdparty directories first!
