@@ -73,7 +73,7 @@ namespace ugps
                 ar & value;
             }
 
-            // Root chunk has value = {}. Child chunk x of chunk with id v has id v.push_back(x).
+            // Root chunk has value = {}. Child chunk x of chunk with value v has value v.push_back(x).
             vector<idPart> value;
         };
 
@@ -104,7 +104,13 @@ namespace ugps
         {
         public:
             KdTreeLeaf() : points(vector<Point>()) {}
-            KdTreeLeaf(const vector<Point>& points) : points(points) {}
+            KdTreeLeaf(const vector<Point>& points) : points(points) 
+            {
+                if(find(points.begin(),points.end(), Point())!=points.end())
+                {
+                    LOG("HA");
+                }
+            }
             vector<Point> points;
 
             template<typename Archive>
@@ -117,15 +123,16 @@ namespace ugps
         {
         public:
             KdTreeSplit() {}
-            KdTreeSplit(const Point& point, const nodeLocation& left, const nodeLocation& right) : point(point), left(left), right(right) {}
+            KdTreeSplit(const Point& point, const size_t& dim, const nodeLocation& left, const nodeLocation& right) : point(point), dim(dim), left(left), right(right) {}
             Point point;
+            size_t dim;
             nodeLocation left;
             nodeLocation right;
 
             template<typename Archive>
             void serialize(Archive& ar, const unsigned version)
             {
-                ar & point & left & right;
+                ar & point & dim & left & right;
             }
         };
 
@@ -133,13 +140,13 @@ namespace ugps
         {
             public:
             KdTreeChunk() : id(KdTreeChunkId()), numChildChunks(0), nodes(vector<KdTreeNode>()) {}
-            KdTreeChunk(const KdTreeChunkId& id) : numChildChunks(0), nodes(vector<KdTreeNode>()), id(id) {}
+            KdTreeChunk(const KdTreeChunkId& id) : id(id), numChildChunks(0), nodes(vector<KdTreeNode>()) {}
 
             KdTreeNode& root() { return nodes[0]; }
 
             KdTreeChunkId id;
-            vector<KdTreeNode> nodes;
             size_t numChildChunks;
+            vector<KdTreeNode> nodes;
 
             template<typename Archive>
             void serialize(Archive& ar, const unsigned version)
@@ -175,10 +182,6 @@ namespace ugps
         }
         void loadRootChunk(bool force = false) { loadChunk(KdTreeChunkId(), force); }
 
-        KdTreeChunk currentChunk;
-
-        const boost::filesystem::path treePath;
-
         template<bool modifying>
         class KdTreeTraverser : public boost::static_visitor<>
         {
@@ -188,7 +191,7 @@ namespace ugps
                 tree.loadRootChunk();
                 traverse(0); 
             }
-            KdTreeTraverser(KdTree& tree) : tree(tree), _dim(numDims-1) {}
+            KdTreeTraverser(KdTree& tree) : tree(tree) {}
 
             void traverse(nodeLocation loc)
             {
@@ -200,39 +203,25 @@ namespace ugps
 
             KdTree& tree;
 
-            size_t dim() const { return _dim; }
-
             void operator()(const KdTreeChunkLink& link)
             {
-                //LOG("Traversed to link to " << link.id.chunkPath());
                 const KdTreeChunkId prevId = tree.currentChunk.id;
                 if(modifying) tree.saveChunk();
                 tree.loadChunk(link.id);
                 traverse(0);
                 if(modifying) tree.saveChunk();
                 tree.loadChunk(prevId);
-                //LOG("link up");
             }
-            void operator()(const KdTreeLeaf& node)
+            // We must keep a copy of splits and leaves because switching chunks would invalidate references
+            // This will only ever take up log(n) space (depth of tree)
+            void operator()(const KdTreeSplit node) 
             {
-                //LOG("Traversed to leaf with " << node.points.size() << " points");
-                _dim++; if(_dim == numDims) _dim = 0;
                 handle(node);
-                if(_dim == 0) _dim = numDims; _dim--;
-                //LOG("leaf up");
             }
-            void operator()(const KdTreeSplit& node)
+            void operator()(const KdTreeLeaf node)
             {
-                //LOG("Traversed to split");
-                _dim++; if(_dim == numDims) _dim = 0;
                 handle(node);
-                if(_dim == 0) _dim = numDims; _dim--;
-                //LOG("split up");
             }
-
-        private:
-            size_t _dim;
-
         };
 
         template<typename Q>
@@ -249,7 +238,9 @@ namespace ugps
         struct KdResult
         {
             template<typename Q>
-            KdResult(const Point& point, const Q& q) : point(point), sqrDist(sqrDistance<Q>(point,q)) {}
+            KdResult(const Point& pt, const Q& q) : point(pt) { 
+                sqrDist = sqrDistance<Q>(pt,q);
+            }
             Point point;
             num_ug sqrDist;
         };
@@ -262,7 +253,7 @@ namespace ugps
             KdResults(const size_t& maxSize, const Q& q) :
                 maxSize(maxSize), vec(vector<KdResult>()), q(q) {}
 
-            void insert(Point p)
+            void insert(const Point& p)
             {
                 KdResult res(p,q); 
                 if(vec.size() < maxSize)
@@ -336,7 +327,7 @@ namespace ugps
 
             const size_t maxSize;
             vector<KdResult> vec;
-            const Q& q;
+            const Q q;
         };
 
         class NodesPrinter : boost::static_visitor<>
@@ -377,7 +368,6 @@ namespace ugps
         template<typename Q>
         class KdTreeNN : KdTreeTraverser<false>
         {
-            using KdTreeTraverser<false>::dim;
             using KdTreeTraverser<false>::traverse;
             void handle(const KdTreeLeaf& leaf)
             {
@@ -389,7 +379,7 @@ namespace ugps
             void handle(const KdTreeSplit& split)
             {
                 nodeLocation onside, offside;
-                num_ug axisDisplacement = q[dim()] - getDim(split.point,dim());
+                num_ug axisDisplacement = q[split.dim] - getDim(split.point, split.dim);
                 if(axisDisplacement < 0)
                 {
                     onside = split.left;
@@ -411,11 +401,11 @@ namespace ugps
                 }
             }
 
-            const Q& q;
+            const Q q;
             const size_t nn;
         public:
             KdTreeNN(KdTree& tree, const Q& q, const size_t& nn) :
-                KdTreeTraverser<false>(tree), q(q), nn(nn), results(KdResults<Q>(nn,q)) { LOG("searcher initialized"); }
+                KdTreeTraverser<false>(tree), q(q), nn(nn), results(KdResults<Q>(nn,q)) { }
             KdResults<Q> results;
             using KdTreeTraverser<false>::go;
         };
@@ -463,13 +453,15 @@ namespace ugps
                     tree.currentChunk.nodes[loc] = KdTreeChunkLink(newId);
                     chunksToBuild.push(ChunkToBuild(newId,begin,end));
                 }
-                else if(distance(begin,end) <= leafMaxSize)
+                else if(static_cast<size_t>(distance(begin,end)) <= leafMaxSize)
                 {
                     tree.currentChunk.nodes[loc] = KdTreeLeaf(vector<Point>(begin,end));
                     chunkSize += distance(begin, end);
                 }
                 else
                 {
+                    dim++; if(dim==numDims) dim = 0;
+
                     const size_t m = distance(begin,end)/2;
                     nth_element(begin, begin+m, end, 
                             [this](const Point& L, const Point& R) -> bool 
@@ -479,43 +471,36 @@ namespace ugps
 
                     const nodeLocation left = tree.currentChunk.nodes.size();
                     const nodeLocation right = tree.currentChunk.nodes.size()+1;
-                    tree.currentChunk.nodes[loc] = KdTreeSplit(*(begin+m), left, right);
+                    tree.currentChunk.nodes[loc] = KdTreeSplit(*(begin+m), dim, left, right);
 
                     tree.currentChunk.nodes.resize(tree.currentChunk.nodes.size()+2);
                     
                     chunkSize++;
-
-                    dim++; if(dim==numDims) dim = 0;
                     
-                    if(dirDistr(mt))
-                    {
-                        buildNode(left, begin, begin+m);
-                        buildNode(right, begin+m+1, end);
-                    }
-                    else
-                    {
-                        buildNode(right, begin+m+1, end);
-                        buildNode(left, begin, begin+m);
-                    }
+                    buildNode(left, begin, begin+m);
+                    buildNode(right, begin+m+1, end);
                     
                     if(dim==0) dim = numDims; dim--;
                 }
             }
+
+            KdTree& tree;
 
             mt19937 mt;
             std::uniform_int_distribution<int> dirDistr;
             size_t chunkSize;
             size_t dim;
             queue<ChunkToBuild> chunksToBuild;
-
-            KdTree& tree;
         };
+
+        const boost::filesystem::path treePath;
+        KdTreeChunk currentChunk;
 
     public:
 
         KdTree(const boost::filesystem::path& treePath) : treePath(treePath), currentChunk(KdTreeChunk()) { loadRootChunk(true); }
 
-        KdTree(const boost::filesystem::path& treePath, vector<Point> points) : currentChunk(KdTreeChunk()), treePath(treePath)
+        KdTree(const boost::filesystem::path& treePath, vector<Point> points) : treePath(treePath), currentChunk(KdTreeChunk())
         {
             KdTreeBuilder<typename vector<Point>::iterator> builder(*this);
             builder.build(points.begin(), points.end());

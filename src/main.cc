@@ -102,4 +102,13 @@ int main(int argc, char *argv[]) {
         for(auto r : res) LOG(r.point.length2());
 
     }
+    LOG("");
+    {
+        nth_element(stars.begin(), stars.begin() + 10, stars.end(), [](const Vec3& L, const Vec3& R) -> bool
+            {
+                return L.length2() < R.length2();
+            });
+
+        for(auto s = stars.begin(); s < stars.begin()+10; s++) LOG(s->length2());
+    }
 }
