@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
     }*/
 
 
-    const size_t numStars = 20000;
+    const size_t numStars = 2000000;
     const num_ug universeRadius = 1;
     
     std::vector<Vec3> stars;
@@ -91,24 +91,21 @@ int main(int argc, char *argv[]) {
         }
     }
     {
-        KdTree<Vec3,getVec3Value,3,5000,64> tree("", stars);
+        KdTree<Vec3,getVec3Value,3> tree("", stars, 500000,1024);
     }
     {
         array<num_ug,3> q{0,0,0};
-        KdTree<Vec3,getVec3Value,3,5000,64> tree("");
+        KdTree<Vec3,getVec3Value,3> tree("");
         
         auto res = tree.knn(q,10);
 
         for(auto r : res) LOG(r.point.length2());
 
-    }
-    LOG("");
-    {
-        nth_element(stars.begin(), stars.begin() + 10, stars.end(), [](const Vec3& L, const Vec3& R) -> bool
-            {
-                return L.length2() < R.length2();
-            });
+        LOG("");
 
-        for(auto s = stars.begin(); s < stars.begin()+10; s++) LOG(s->length2());
+        res = tree.rnn(q,0.0007);
+
+        for(auto r: res) LOG(r.point.length2());
+
     }
 }

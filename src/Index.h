@@ -16,8 +16,6 @@
 #include "IndexEighth.h"
 #include "Orientation.h"
 
-using namespace nanoflann;
-
 namespace ugps
 {
     class Index
@@ -65,7 +63,7 @@ namespace ugps
     {
         vector<size_t> ret_indexes(n);
         vector<num_ug> out_dists_sqr(n);
-        KNNResultSet<num_ug> resultSet(n);
+        nanoflann::KNNResultSet<num_ug> resultSet(n);
         resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
 
         num_ug queryPoint[4];
@@ -74,7 +72,7 @@ namespace ugps
         queryPoint[2] = query.q3;
         queryPoint[3] = query.q4;
 
-        orientedIndex[query.orientation].tree->findNeighbors(resultSet,queryPoint,SearchParams());
+        orientedIndex[query.orientation].tree->findNeighbors(resultSet,queryPoint,nanoflann::SearchParams());
 
         vector<const ProjectionQuad*> returnQuads;
 
@@ -90,7 +88,7 @@ namespace ugps
     vector<const ProjectionQuad*> Index::radiusSearch(const Quad<star_t,vec2>& query, const num_ug& r) const
     {
         vector<pair<size_t,num_ug> > indices_dists;
-		RadiusResultSet<num_ug,size_t> resultSet(r,indices_dists);
+		nanoflann::RadiusResultSet<num_ug,size_t> resultSet(r,indices_dists);
 
         num_ug queryPoint[4];
         queryPoint[0] = query.q1;
@@ -98,7 +96,7 @@ namespace ugps
         queryPoint[2] = query.q3;
         queryPoint[3] = query.q4;
 
-        orientedIndex[query.orientation].tree->findNeighbors(resultSet,queryPoint,SearchParams());
+        orientedIndex[query.orientation].tree->findNeighbors(resultSet,queryPoint,nanoflann::SearchParams());
         
         vector<const ProjectionQuad*> returnQuads;
 
